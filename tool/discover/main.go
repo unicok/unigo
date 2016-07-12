@@ -3,7 +3,7 @@ package main
 import "os"
 
 const (
-	raw = "https://raw.githubusercontent.com/gonet2/libs/master/services/services.go"
+	raw = "https://raw.githubusercontent.com/amorwilliams/bodoni/master/lib/services/services.go"
 )
 
 func main() {
