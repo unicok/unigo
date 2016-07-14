@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package proto;
+
+// SnowflakeService service definition
+service SnowflakeService {
+    rpc Next(Snowflake.Key) returns (Snowflake.Value); // gen next id
+    rpc GetUUID(Snowflake.NullRequest) returns (Snowflake.UUID); // UUID 
+}
+
+message Snowflake {
+    message Key {
+        string name=1;
+    }
+    message Value{
+        int64 value=1;
+    }
+    message NullRequest{
+    }
+    message UUID{
+        uint64 uuid=1;
+    }
+}
+
