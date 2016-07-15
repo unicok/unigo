@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	raw = "https://raw.githubusercontent.com/amorwilliams/bodoni/master/lib/services/services.go"
+	raw = "https://raw.githubusercontent.com/unicok/unigo/master/lib/services/services.go"
 )
 
 func main() {

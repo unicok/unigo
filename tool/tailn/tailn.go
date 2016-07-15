@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	log "github.com/amorwilliams/bodoni/lib/nsq-logger"
 	"github.com/bitly/go-nsq"
 	"github.com/pquerna/ffjson/ffjson"
+	log "github.com/unicok/unigo/lib/nsq-logger"
 	"gopkg.in/urfave/cli.v2"
 )
 

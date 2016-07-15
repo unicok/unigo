@@ -1,6 +1,6 @@
 package main
 
-import _ "github.com/amorwilliams/bodoni/lib/statsd-pprof"
+import _ "github.com/unicok/unigo/lib/statsd-pprof"
 
 func main() {
 	arch := &Archiver{}

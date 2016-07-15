@@ -5,7 +5,7 @@ import (
 
 	"golang.org/x/net/context"
 
-	pb "github.com/amorwilliams/bodoni/snowflake/proto"
+	pb "github.com/unicok/unigo/snowflake/proto"
 	"google.golang.org/grpc"
 )
 

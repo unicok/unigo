@@ -7,8 +7,8 @@ import (
 	"google.golang.org/grpc"
 
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/amorwilliams/bodoni/lib/statsd-pprof"
-	"github.com/amorwilliams/bodoni/snowflake/proto"
+	_ "github.com/unicok/unigo/lib/statsd-pprof"
+	"github.com/unicok/unigo/snowflake/proto"
 )
 
 const (

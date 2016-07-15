@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	redo "github.com/amorwilliams/bodoni/lib/nsq-redo"
+	redo "github.com/unicok/unigo/lib/nsq-redo"
 )
 
 type testdoc struct {
