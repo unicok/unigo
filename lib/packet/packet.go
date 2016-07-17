@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	PACKET_LIMIT = 65535
+	PacketLimit = 65535
 )
 
 type Packet struct {
