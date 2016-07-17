@@ -1,7 +1,7 @@
 package main
 
 import (
-	sp "github.com/amorwilliams/bodoni/lib/services"
+	sp "github.com/unicok/unigo/lib/services"
 )
 
 func startup() {
