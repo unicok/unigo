@@ -1,17 +1,17 @@
-package main
+package types
 
 import (
 	"crypto/rc4"
 	"net"
 	"time"
 
-	pb "github.com/unicok/unigo/agent/pb"
+	pb "agent/pb"
 )
 
 const (
 	SessKeyExchanged = 0x1 // 是否已经交换完毕KEY
 	SessEncrypt      = 0x2 // 是否可以开始加密
-	SessKick         = 0x4 // 踢掉
+	SessKickOut      = 0x4 // 踢掉
 	SessAuthorized   = 0x8 // 已授权访问
 )
 

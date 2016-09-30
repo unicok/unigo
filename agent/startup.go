@@ -1,11 +1,11 @@
 package main
 
 import (
-	sp "github.com/unicok/unigo/lib/services"
+	sp "lib/services"
 )
 
 func startup() {
-	go sigHandler()
+	go signalHandler()
 	// init services discovery
 	sp.Init("game", "snowflake")
 }
