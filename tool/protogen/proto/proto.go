@@ -254,6 +254,7 @@ func main() {
 			&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Value: "./proto.txt", Usage: "input proto.txt file"},
 			&cli.StringFlag{Name: "binding", Aliases: []string{"b"}, Value: "go", Usage: `language type binding:"go","cs"`},
 			&cli.StringFlag{Name: "template", Aliases: []string{"t"}, Value: "./templates/server/proto.tmpl", Usage: "template file"},
+			&cli.StringFlag{Name: "pkgname", Aliases: []string{"pkg"}, Value: "agent", Usage: "package name to prefix"},
 		},
 		Action: func(c *cli.Context) error {
 			// load primitives mapping
@@ -300,7 +301,13 @@ func main() {
 				log.Fatal(err)
 				return err
 			}
-			err = tmpl.Execute(os.Stdout, p.infos)
+
+			args := struct {
+				PackageName string
+				Infos       []structInfo
+			}{c.String("pkgname"), p.infos}
+
+			err = tmpl.Execute(os.Stdout, args)
 			if err != nil {
 				log.Fatal(err)
 				return err

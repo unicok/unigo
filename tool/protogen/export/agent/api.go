@@ -2,8 +2,8 @@
 // DO NOT EDIT!
 package client_handler
 
-import "misc/packet"
-import . "types"
+import "lib/packet"
+import . "agent"
 
 var Code = map[string]int16{
 	"heart_beat_req": 0, // 心跳包..

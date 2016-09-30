@@ -239,12 +239,13 @@ func main() {
 		Usage:    "handle api.txt",
 		Compiled: time.Now(),
 		Authors:  []*cli.Author{&cli.Author{Name: "Robin", Email: "amorwilliams@hotmail.com"}},
-		Version:  "1.0",
+		Version:  "1.1",
 		Flags: []cli.Flag{
 			&cli.StringFlag{Name: "file", Aliases: []string{"f"}, Value: "./api.txt", Usage: "input api.txt file"},
 			&cli.IntFlag{Name: "min_proto", Aliases: []string{"min"}, Value: 0, Usage: "minimum proto number"},
 			&cli.IntFlag{Name: "max_proto", Aliases: []string{"max"}, Value: 1000, Usage: "maximum proto number"},
 			&cli.StringFlag{Name: "template", Aliases: []string{"t"}, Value: "./templates/server/api.tmpl", Usage: "template file"},
+			&cli.StringFlag{Name: "pkgname", Aliases: []string{"pkg"}, Value: "agent", Usage: "package name to prefix"},
 		},
 		Action: func(c *cli.Context) error {
 			// parse
@@ -277,7 +278,13 @@ func main() {
 				log.Fatal(err)
 				return err
 			}
-			err = tmpl.Execute(os.Stdout, p.exprs)
+
+			args := struct {
+				PackageName string
+				Exprs       []apiExpr
+			}{c.String("pkgname"), p.exprs}
+
+			err = tmpl.Execute(os.Stdout, args)
 			if err != nil {
 				log.Fatal(err)
 				return err

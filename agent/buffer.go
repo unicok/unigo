@@ -5,9 +5,11 @@ import (
 	"net"
 	"time"
 
+	. "agent/types"
+	"lib/packet"
+	"lib/utils"
+
 	log "github.com/Sirupsen/logrus"
-	"github.com/unicok/unigo/agent/utils"
-	"github.com/unicok/unigo/lib/packet"
 )
 
 // Buffer is PIPELINE #3: buffer
@@ -32,7 +34,7 @@ func init() {
 				_padding[k] = byte(<-utils.LCG)
 			}
 			log.Info("Padding Updated:", _padding)
-			<-time.Afert(PaddingUpdatePeriod * time.Second)
+			<-time.After(PaddingUpdatePeriod * time.Second)
 		}
 	}()
 }
@@ -48,7 +50,7 @@ func (b *Buffer) send(sess *Session, data []byte) {
 	// if the size of the data to return is tiny, pad with some random numbers
 	// this strategy may change to randomize padding
 	if len(data) < PaddingLimit {
-		data = append(data, _padding)
+		data = append(data, _padding[:]...)
 	}
 
 	// encryption
@@ -61,7 +63,7 @@ func (b *Buffer) send(sess *Session, data []byte) {
 	}
 
 	// queue the data for sending
-	buf.pending <- data
+	b.pending <- data
 	return
 }
 
@@ -89,7 +91,7 @@ func (b *Buffer) rawSend(data []byte) bool {
 	copy(b.cache[2:], data)
 
 	// wiret data
-	n, err := b.conn.Write(buf.cache[:sz+2])
+	n, err := b.conn.Write(b.cache[:sz+2])
 	if err != nil {
 		log.Warningf("Error send reply data, byte: %v reason %v", n, err)
 		return false
@@ -100,8 +102,9 @@ func (b *Buffer) rawSend(data []byte) bool {
 
 // create a associated write buffer for a session
 func newBuffer(conn net.Conn, ctrl chan struct{}) *Buffer {
-	buf := Buffer{conn: conn}
+	buf := &Buffer{conn: conn}
 	buf.pending = make(chan []byte)
 	buf.ctrl = ctrl
-	buf.cache = make([]byte, packet.PACKET_LIMIT)
+	buf.cache = make([]byte, packet.PacketLimit+2)
+	return buf
 }
