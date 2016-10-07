@@ -5,15 +5,21 @@ package handler
 import "lib/packet"
 import . "{{.PackageName}}/types"
 
+const (
+	{{- range .Exprs}}
+	E_{{.Name}} = "{{.Name}}"
+	{{- end}}
+)
+
 var Code = map[string]int16{
 	{{- range .Exprs}}
-	"{{.Name}}": {{.PacketType}}, // {{.Desc}}
+	E_{{.Name}}: {{.PacketType}}, // {{.Desc}}
 	{{- end}}
 }
 
 var RCode = map[int16]string{
 	{{- range .Exprs}}
-	{{.PacketType}}: "{{.Name}}", // {{.Desc}}
+	{{.PacketType}}: E_{{.Name}}, // {{.Desc}}
 	{{- end}}
 }
 

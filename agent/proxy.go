@@ -23,7 +23,7 @@ var _statter g2s.Statter
 
 func init() {
 	addr := DefaultStatsdHost
-	if env := os.Getenv(EnvStatsd); err != "" {
+	if env := os.Getenv(EnvStatsd); env != "" {
 		addr = env
 	}
 
@@ -37,18 +37,8 @@ func init() {
 
 // client protocol handle proxy
 func proxyUserRequest(sess *Session, p []byte) []byte {
-	defer utils.PrintPanicStack()
 	start := time.Now()
-	defer func() {
-		// 监控协议处理时间
-		// 监控数值会发送到statsd,格式为:
-		// API.XXX_REQ = 10ms
-		elasped := time.Now().Sub(start)
-		if b != 0 { // 排除心跳包日志
-			log.Debug("[REQ]", handler.RCode[b])
-			_statter.Timing(1.0, fmt.Sprintf("%v%v", StatsdPrefix, handler.RCode[b]), elasped)
-		}
-	}()
+	defer utils.PrintPanicStack()
 
 	//解密
 	if sess.Flag&SessEncrypt != 0 {
@@ -100,6 +90,15 @@ func proxyUserRequest(sess *Session, p []byte) []byte {
 			sess.Flag |= SessKickOut
 			return nil
 		}
+	}
+
+	// 监控协议处理时间
+	// 监控数值会发送到statsd,格式为:
+	// API.XXX_REQ = 10ms
+	elasped := time.Now().Sub(start)
+	if b != 0 { // 排除心跳包日志
+		log.Debug("[REQ]", handler.RCode[b])
+		_statter.Timing(1.0, fmt.Sprintf("%v%v", StatsdPrefix, handler.RCode[b]), elasped)
 	}
 
 	return ret

@@ -1,10 +1,11 @@
 package main
 
 import (
-	pb "agent/pb"
-	. "agent/types"
-	"lib/utils"
 	"time"
+
+	. "agent/types"
+	pb "lib/proto"
+	"lib/utils"
 )
 
 // PIPELINE #2: agent

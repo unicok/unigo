@@ -15,8 +15,8 @@ import (
 
 const (
 	etcdHostEnv        = "ETCD_HOST"
-	defaultETCD        = "http://172.17.42.1:2379"
-	defaultServicePath = "/backends"
+	DefaultETCD        = "http://172.17.42.1:2379"
+	DefaultServicePath = "/backends"
 	defaultNameFile    = "/backends/names"
 )
 
@@ -56,7 +56,7 @@ func Init(names ...string) {
 
 func (p *servicePool) init(names ...string) {
 	// etcd client
-	machines := []string{defaultETCD}
+	machines := []string{DefaultETCD}
 	if env := os.Getenv(etcdHostEnv); env != "" {
 		machines = strings.Split(env, ";")
 	}
@@ -87,11 +87,11 @@ func (p *servicePool) init(names ...string) {
 
 	log.Println("all service names:", names)
 	for _, v := range names {
-		p.knownNames[defaultServicePath+"/"+strings.TrimSpace(v)] = true
+		p.knownNames[DefaultServicePath+"/"+strings.TrimSpace(v)] = true
 	}
 
 	// start connection
-	p.connectAll(defaultServicePath)
+	p.connectAll(DefaultServicePath)
 }
 
 func (p *servicePool) loadNames() []string {
@@ -145,7 +145,7 @@ func (p *servicePool) connectAll(dir string) {
 
 func (p *servicePool) watcher() {
 	kapi := etcdclient.NewKeysAPI(p.client)
-	w := kapi.Watcher(defaultServicePath, &etcdclient.WatcherOptions{Recursive: true})
+	w := kapi.Watcher(DefaultServicePath, &etcdclient.WatcherOptions{Recursive: true})
 	for {
 		resp, err := w.Next(context.Background())
 		if err != nil {

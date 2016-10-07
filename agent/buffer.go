@@ -57,8 +57,8 @@ func (b *Buffer) send(sess *Session, data []byte) {
 	// (NOT_ENCRYPTED) -> KEYEXCG -> ENCRYPT
 	if sess.Flag&SessEncrypt != 0 { // encryption is enabled
 		sess.Encoder.XORKeyStream(data, data)
-	} else if sess.Flag&SessKeyExchanged != 0 { // key is exchanged, encryption is not yet enabled
-		sess.Flag &^= SessKeyExchanged
+	} else if sess.Flag&SessKeyDone != 0 { // key is exchanged, encryption is not yet enabled
+		sess.Flag &^= SessKeyDone
 		sess.Flag |= SessEncrypt
 	}
 
