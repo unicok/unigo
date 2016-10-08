@@ -1,0 +1,3 @@
+FROM golang
+ADD . /go/src/game
+RUN CGO_ENABLED=0 go install -a game
