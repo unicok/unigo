@@ -1,4 +1,4 @@
-**/vendor/
+# **/vendor/
 
 agent/agent
 game/game
