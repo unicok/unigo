@@ -1,0 +1,4 @@
+FROM busybox
+COPY go/bin/agent /usr/bin/agent
+EXPOSE 8888 8888/udp
+ENTRYPOINT ["agent"]
