@@ -13,8 +13,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	etcd "github.com/coreos/etcd/client"
 
-	"github.com/unicok/unigo/snowflake/etcdclient"
-	pb "github.com/unicok/unigo/snowflake/proto"
+	"lib/etcdclient"
+	pb "lib/proto"
 )
 
 const (
