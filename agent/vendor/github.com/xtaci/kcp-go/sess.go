@@ -16,14 +16,6 @@ import (
 	"golang.org/x/net/ipv4"
 )
 
-// Option defines extra options
-type Option interface{}
-
-// OptionWithConvId defines conversation id
-type OptionWithConvId struct {
-	Id uint32
-}
-
 type errTimeout struct {
 	error
 }
@@ -328,7 +320,9 @@ func (s *UDPSession) SetDSCP(dscp int) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if s.l == nil {
-		if nc, ok := s.conn.(net.Conn); ok {
+		if nc, ok := s.conn.(*ConnectedUDPConn); ok {
+			return ipv4.NewConn(nc.Conn).SetTOS(dscp << 2)
+		} else if nc, ok := s.conn.(net.Conn); ok {
 			return ipv4.NewConn(nc).SetTOS(dscp << 2)
 		}
 	}
@@ -366,16 +360,6 @@ func (s *UDPSession) SetKeepAlive(interval int) {
 	s.keepAliveInterval = time.Duration(interval) * time.Second
 }
 
-// writeTo wraps write method for client & listener
-func (s *UDPSession) writeTo(b []byte, addr net.Addr) (int, error) {
-	if s.l == nil {
-		if nc, ok := s.conn.(io.Writer); ok {
-			return nc.Write(b)
-		}
-	}
-	return s.conn.WriteTo(b, addr)
-}
-
 func (s *UDPSession) outputTask() {
 	// offset pre-compute
 	fecOffset := 0
@@ -410,11 +394,12 @@ func (s *UDPSession) outputTask() {
 				binary.LittleEndian.PutUint16(ext[szOffset:], uint16(len(ext[szOffset:])))
 
 				// copy data to fec group
-				xorBytes(fecGroup[fecCnt], fecGroup[fecCnt], fecGroup[fecCnt])
+				sz := len(ext)
 				copy(fecGroup[fecCnt], ext)
+				xorBytes(fecGroup[fecCnt][sz:], fecGroup[fecCnt][sz:], fecGroup[fecCnt][sz:])
 				fecCnt++
-				if len(ext) > fecMaxSize {
-					fecMaxSize = len(ext)
+				if sz > fecMaxSize {
+					fecMaxSize = sz
 				}
 
 				//  calculate Reed-Solomon Erasure Code
@@ -446,7 +431,7 @@ func (s *UDPSession) outputTask() {
 			}
 
 			//if rand.Intn(100) < 80 {
-			if n, err := s.writeTo(ext, s.remote); err == nil {
+			if n, err := s.conn.WriteTo(ext, s.remote); err == nil {
 				atomic.AddUint64(&DefaultSnmp.OutSegs, 1)
 				atomic.AddUint64(&DefaultSnmp.OutBytes, uint64(n))
 			}
@@ -454,13 +439,12 @@ func (s *UDPSession) outputTask() {
 
 			if ecc != nil {
 				for k := range ecc {
-					if n, err := s.writeTo(ecc[k], s.remote); err == nil {
+					if n, err := s.conn.WriteTo(ecc[k], s.remote); err == nil {
 						atomic.AddUint64(&DefaultSnmp.OutSegs, 1)
 						atomic.AddUint64(&DefaultSnmp.OutBytes, uint64(n))
 					}
 				}
 			}
-			xorBytes(ext, ext, ext)
 			s.xmitBuf.Put(ext)
 		case <-ticker.C: // NAT keep-alive
 			if len(s.chUDPOutput) == 0 {
@@ -468,13 +452,12 @@ func (s *UDPSession) outputTask() {
 				interval := s.keepAliveInterval
 				s.mu.Unlock()
 				if interval > 0 && time.Now().After(lastPing.Add(interval)) {
-					buf := make([]byte, 2)
-					io.ReadFull(rand.Reader, buf)
-					rnd := int(binary.LittleEndian.Uint16(buf))
-					sz := rnd%(IKCP_MTU_DEF-s.headerSize-IKCP_OVERHEAD) + s.headerSize + IKCP_OVERHEAD
-					ping := make([]byte, sz)
+					var rnd uint16
+					binary.Read(rand.Reader, binary.LittleEndian, &rnd)
+					sz := int(rnd)%(IKCP_MTU_DEF-s.headerSize-IKCP_OVERHEAD) + s.headerSize + IKCP_OVERHEAD
+					ping := make([]byte, sz) // randomized ping packet
 					io.ReadFull(rand.Reader, ping)
-					s.writeTo(ping, s.remote)
+					s.conn.WriteTo(ping, s.remote)
 					lastPing = time.Now()
 				}
 			}
@@ -629,7 +612,6 @@ func (s *UDPSession) readLoop() {
 			if dataValid {
 				s.kcpInput(data)
 			}
-			xorBytes(raw, raw, raw)
 			s.xmitBuf.Put(raw)
 		case <-s.die:
 			return
@@ -715,7 +697,6 @@ func (l *Listener) monitor() {
 				}
 			}
 
-			xorBytes(raw, raw, raw)
 			l.rxbuf.Put(raw)
 		case deadlink := <-l.chDeadlinks:
 			delete(l.sessions, deadlink.String())
@@ -839,6 +820,11 @@ func ListenWithOptions(laddr string, block BlockCrypt, dataShards, parityShards 
 		return nil, errors.Wrap(err, "net.ListenUDP")
 	}
 
+	return ServeConn(block, dataShards, parityShards, conn)
+}
+
+// ServeConn serves KCP protocol for a single packet connection.
+func ServeConn(block BlockCrypt, dataShards, parityShards int, conn net.PacketConn) (*Listener, error) {
 	l := new(Listener)
 	l.conn = conn
 	l.sessions = make(map[string]*UDPSession)
@@ -871,7 +857,7 @@ func Dial(raddr string) (net.Conn, error) {
 }
 
 // DialWithOptions connects to the remote address "raddr" on the network "udp" with packet encryption
-func DialWithOptions(raddr string, block BlockCrypt, dataShards, parityShards int, opts ...Option) (*UDPSession, error) {
+func DialWithOptions(raddr string, block BlockCrypt, dataShards, parityShards int) (*UDPSession, error) {
 	udpaddr, err := net.ResolveUDPAddr("udp", raddr)
 	if err != nil {
 		return nil, errors.Wrap(err, "net.ResolveUDPAddr")
@@ -882,19 +868,34 @@ func DialWithOptions(raddr string, block BlockCrypt, dataShards, parityShards in
 		return nil, errors.Wrap(err, "net.DialUDP")
 	}
 
+	return NewConn(raddr, block, dataShards, parityShards, &ConnectedUDPConn{udpconn, udpconn})
+}
+
+// NewConn establishes a session and talks KCP protocol over a packet connection.
+func NewConn(raddr string, block BlockCrypt, dataShards, parityShards int, conn net.PacketConn) (*UDPSession, error) {
+	udpaddr, err := net.ResolveUDPAddr("udp", raddr)
+	if err != nil {
+		return nil, errors.Wrap(err, "net.ResolveUDPAddr")
+	}
+
 	var convid uint32
 	binary.Read(rand.Reader, binary.LittleEndian, &convid)
-	for k := range opts {
-		switch opt := opts[k].(type) {
-		case OptionWithConvId:
-			convid = opt.Id
-		default:
-			return nil, errors.New("unrecognized option")
-		}
-	}
-	return newUDPSession(convid, dataShards, parityShards, nil, udpconn, udpaddr, block), nil
+	return newUDPSession(convid, dataShards, parityShards, nil, conn, udpaddr, block), nil
 }
 
 func currentMs() uint32 {
 	return uint32(time.Now().UnixNano() / int64(time.Millisecond))
+}
+
+// ConnectedUDPConn is a wrapper for net.UDPConn which converts WriteTo syscalls
+// to Write syscalls that are 4 times faster on some OS'es. This should only be
+// used for connections that were produced by a net.Dial* call.
+type ConnectedUDPConn struct {
+	*net.UDPConn
+	Conn net.Conn // underlying connection if any
+}
+
+// WriteTo redirects all writes to the Write syscall, which is 4 times faster.
+func (c *ConnectedUDPConn) WriteTo(b []byte, addr net.Addr) (int, error) {
+	return c.Write(b)
 }
