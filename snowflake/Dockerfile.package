@@ -1,0 +1,4 @@
+FROM busybox
+COPY go/bin/snowflake /usr/bin/snowflake
+EXPOSE 50003
+ENTRYPOINT ["snowflake"]
