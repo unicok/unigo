@@ -6,7 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "lib/proto"
+	pbgame "lib/proto/game"
 	sp "lib/services"
 
 	log "github.com/Sirupsen/logrus"
@@ -27,7 +27,7 @@ func main() {
 	// registry service
 	s := grpc.NewServer()
 	ins := new(server)
-	pb.RegisterGameServiceServer(s, ins)
+	pbgame.RegisterGameServiceServer(s, ins)
 
 	sp.Init("snowflake")
 	s.Serve(lis)

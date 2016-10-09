@@ -151,6 +151,11 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "CcR2p3hiqJjRTH04Y7qmS7oAbDo=",
+			"path": "lib/proto/game",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "C5GmWXw7AYJMwePVo4YVwJQ5Wag=",
 			"path": "lib/registry",
 			"revision": ""

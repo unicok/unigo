@@ -9,7 +9,7 @@ import (
 	tp "game/types"
 
 	"lib/packet"
-	pb "lib/proto"
+	pbgame "lib/proto/game"
 	"lib/registry"
 	"lib/utils"
 
@@ -30,8 +30,8 @@ type server struct{}
 
 // PIPELINE #1 stream receiver
 // this function is to make the stream receiving SELECTABLE
-func (s *server) recv(stream pb.GameService_StreamServer, sess_die chan struct{}) chan *pb.Game_Frame {
-	ch := make(chan *pb.Game_Frame, 1)
+func (s *server) recv(stream pbgame.GameService_StreamServer, sess_die chan struct{}) chan *pbgame.Game_Frame {
+	ch := make(chan *pbgame.Game_Frame, 1)
 	go func() {
 		defer func() {
 			close(ch)
@@ -56,14 +56,14 @@ func (s *server) recv(stream pb.GameService_StreamServer, sess_die chan struct{}
 
 // PIPELINE #2 stream processing
 // the center of game logic
-func (s *server) Stream(stream pb.GameService_StreamServer) error {
+func (s *server) Stream(stream pbgame.GameService_StreamServer) error {
 	defer utils.PrintPanicStack()
 
 	// session init
 	var sess tp.Session
 	sess_die := make(chan struct{})
 	ch_agent := s.recv(stream, sess_die)
-	ch_ipc := make(chan *pb.Game_Frame, DefaultChIPCSize)
+	ch_ipc := make(chan *pbgame.Game_Frame, DefaultChIPCSize)
 
 	defer func() {
 		registry.Unregister(sess.UserId)
@@ -102,7 +102,7 @@ func (s *server) Stream(stream pb.GameService_StreamServer) error {
 				return nil
 			}
 			switch frame.Type {
-			case pb.Game_Message: // the passthrough message from client->agent->game
+			case pbgame.Game_Message: // the passthrough message from client->agent->game
 				// locate handler by proto number
 				reader := packet.Reader(frame.Message)
 				c, err := reader.ReadS16()
@@ -121,7 +121,7 @@ func (s *server) Stream(stream pb.GameService_StreamServer) error {
 
 				// construct frame & return message from logic
 				if err != nil {
-					if err := stream.Send(&pb.Game_Frame{Type: pb.Game_Message, Message: ret}); err != nil {
+					if err := stream.Send(&pbgame.Game_Frame{Type: pbgame.Game_Message, Message: ret}); err != nil {
 						log.Error(err)
 						return err
 					}
@@ -129,14 +129,14 @@ func (s *server) Stream(stream pb.GameService_StreamServer) error {
 
 				// session control by logic
 				if sess.Flag&tp.SessKickOut != 0 { //logic kick out
-					if err := stream.Send(&pb.Game_Frame{Type: pb.Game_Kick}); err != nil {
+					if err := stream.Send(&pbgame.Game_Frame{Type: pbgame.Game_Kick}); err != nil {
 						log.Error(err)
 						return err
 					}
 					return nil
 				}
-			case pb.Game_Ping:
-				if err := stream.Send(&pb.Game_Frame{Type: pb.Game_Ping, Message: frame.Message}); err != nil {
+			case pbgame.Game_Ping:
+				if err := stream.Send(&pbgame.Game_Frame{Type: pbgame.Game_Ping, Message: frame.Message}); err != nil {
 					log.Error(err)
 					return err
 				}

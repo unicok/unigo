@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	. "agent/types"
-	pb "lib/proto"
+	pb "lib/proto/game"
 
 	log "github.com/Sirupsen/logrus"
 )

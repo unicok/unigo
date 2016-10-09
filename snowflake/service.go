@@ -14,7 +14,7 @@ import (
 	etcd "github.com/coreos/etcd/client"
 
 	"lib/etcdclient"
-	pb "lib/proto"
+	pb "lib/proto/snowflake"
 )
 
 const (

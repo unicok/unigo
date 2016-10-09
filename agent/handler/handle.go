@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/metadata"
 
 	. "agent/types"
-	pb "lib/proto"
+	pb "lib/proto/game"
 	sp "lib/services"
 
 	log "github.com/Sirupsen/logrus"

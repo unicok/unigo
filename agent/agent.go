@@ -4,7 +4,7 @@ import (
 	"time"
 
 	. "agent/types"
-	pb "lib/proto"
+	pb "lib/proto/game"
 	"lib/utils"
 )
 

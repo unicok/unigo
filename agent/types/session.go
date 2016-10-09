@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	pb "lib/proto"
+	pb "lib/proto/game"
 )
 
 const (

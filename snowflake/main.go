@@ -6,9 +6,10 @@ import (
 
 	"google.golang.org/grpc"
 
+	pb "lib/proto/snowflake"
+	_ "lib/statsd-pprof"
+
 	log "github.com/Sirupsen/logrus"
-	_ "github.com/unicok/unigo/lib/statsd-pprof"
-	"github.com/unicok/unigo/snowflake/proto"
 )
 
 const (
@@ -28,7 +29,7 @@ func main() {
 	s := grpc.NewServer()
 	ins := &server{}
 	ins.init()
-	proto.RegisterSnowflakeServiceServer(s, ins)
+	pb.RegisterSnowflakeServiceServer(s, ins)
 
 	// start service
 	s.Serve(l)
