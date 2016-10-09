@@ -99,7 +99,7 @@ func proxyUserRequest(sess *Session, p []byte) []byte {
 	// API.XXX_REQ = 10ms
 	elasped := time.Now().Sub(start)
 	if b != 0 { // 排除心跳包日志
-		log.Debug("[REQ]", handler.RCode[b])
+		log.Debug("[REQ]", handler.RCode[b], " elasped:", elasped)
 		_statter.Timing(1.0, fmt.Sprintf("%v%v", StatsdPrefix, handler.RCode[b]), elasped)
 	}
 
