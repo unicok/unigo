@@ -254,6 +254,11 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "VFJeTXY1ZO7Fd3NO/CYkGpBXTQM=",
+			"path": "lib/logger",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "0DLOhxH+HYTA9TD5drl10z8Qqzg=",
 			"path": "lib/packet",
 			"revision": ""

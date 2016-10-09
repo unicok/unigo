@@ -73,6 +73,8 @@ func proxyUserRequest(sess *Session, p []byte) []byte {
 		return nil
 	}
 
+	log.Debugf("msg seq_id: %v msgid: %v ", seq_id, b)
+
 	// 根据协议号断做服务划分
 	// 协议号的划分采用分割协议区间, 用户可以自定义多个区间，用于转发到不同的后端服务
 	var ret []byte

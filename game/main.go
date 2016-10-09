@@ -6,6 +6,8 @@ import (
 
 	"google.golang.org/grpc"
 
+	_ "lib/logger"
+
 	pbgame "lib/proto/game"
 	sp "lib/services"
 

@@ -13,6 +13,7 @@ import (
 	"github.com/xtaci/kcp-go"
 
 	. "agent/types"
+	_ "lib/logger"
 	"lib/utils"
 )
 
