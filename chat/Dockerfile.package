@@ -1,0 +1,6 @@
+FROM busybox
+COPY go/bin/chat /usr/bin/chat
+RUN mkdir /data
+VOLUME /data
+EXPOSE 50008
+ENTRYPOINT ["chat"]
