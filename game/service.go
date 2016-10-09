@@ -92,7 +92,7 @@ func (s *server) Stream(stream pbgame.GameService_StreamServer) error {
 	// register user
 	sess.UserId = int32(userId)
 	registry.Register(sess.UserId, ch_ipc)
-	log.Debug("userid", sess.UserId)
+	log.Debug("userid:", sess.UserId)
 
 	// >> main message loop <<
 	for {
@@ -116,11 +116,12 @@ func (s *server) Stream(stream pbgame.GameService_StreamServer) error {
 					return ErrorServiceNotBind
 				}
 
+				log.Debug("msgid:", c)
 				// handle request
 				ret := h(&sess, reader)
 
 				// construct frame & return message from logic
-				if err != nil {
+				if ret != nil {
 					if err := stream.Send(&pbgame.Game_Frame{Type: pbgame.Game_Message, Message: ret}); err != nil {
 						log.Error(err)
 						return err
