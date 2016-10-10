@@ -1,0 +1,3 @@
+FROM golang
+ADD . /go/src/auth
+RUN CGO_ENABLED=0 go install -a auth
