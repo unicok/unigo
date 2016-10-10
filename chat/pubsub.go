@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/name5566/leaf/log"
+	log "github.com/Sirupsen/logrus"
 )
 
 // a subscribers carries a callback funcion
