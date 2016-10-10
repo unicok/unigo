@@ -1,17 +1,17 @@
 package main
 
 import (
-	"context"
 	"testing"
 	"time"
 
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 
 	pb "lib/proto/chat"
 )
 
 const (
-	address = "192.168.1.210:50008"
+	address = "127.0.0.1:50008"
 )
 
 var (

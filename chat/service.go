@@ -23,18 +23,28 @@ const (
 )
 
 const (
-	BoltDBFile    = "/data/CHAT.DAT"
-	BoltDBBucket  = "EPS"
-	MaxQueueSize  = 128 // num of message kept
-	PendingSize   = 65536
-	CheckInterval = time.Minute
+	envBoltDBFile     = "BOLT_DB_FILE"
+	defaultBoltDBFile = "/data/CHAT.DAT"
+	BoltDBBucket      = "EPS"
+	MaxQueueSize      = 128 // num of message kept
+	PendingSize       = 65536
+	CheckInterval     = time.Minute
 )
 
 var (
 	OK                 = &pb.Chat_Nil{}
 	ErrorAlreadyExists = errors.New("id already exists")
 	ErrorNotExists     = errors.New("id not exists")
+	BoltDBFile         = defaultBoltDBFile
 )
+
+func init() {
+	// check if user specified machine id is set
+	if env := os.Getenv(envBoltDBFile); env != "" {
+		BoltDBFile = env
+		log.Info("bolt db file specified:", env)
+	}
+}
 
 // Endpoint definition
 type EndPoint struct {
@@ -149,13 +159,14 @@ func (s *server) Send(ctx context.Context, msg *pb.Chat_Message) (*pb.Chat_Nil, 
 func (s *server) Reg(ctx context.Context, p *pb.Chat_Id) (*pb.Chat_Nil, error) {
 	s.Lock()
 	defer s.Unlock()
-	ep := s.readEP(p.Id)
+	ep := s.eps[p.Id]
 	if ep != nil {
 		log.Errorf("id already exists:%v when Reg", p.Id)
 		return nil, ErrorAlreadyExists
 	}
 
 	s.eps[p.Id] = NewEndPoint()
+	log.Debug("eps size:", len(s.eps))
 	s.pending <- p.Id
 	return OK, nil
 }
