@@ -100,13 +100,13 @@ func (p *servicePool) loadNames() []string {
 	log.Info("reading names:", defaultNameFile)
 	resp, err := kapi.Get(context.Background(), defaultNameFile, nil)
 	if err != nil {
-		log.Warn(err)
+		log.Error(err)
 		return nil
 	}
 
 	// validation check
 	if resp.Node.Dir {
-		log.Warn("names is not a file")
+		log.Error("names is not a file")
 		return nil
 	}
 
@@ -121,13 +121,13 @@ func (p *servicePool) connectAll(dir string) {
 	log.Info("connecting services under:", dir)
 	resp, err := kapi.Get(context.Background(), dir, &etcdclient.GetOptions{Recursive: true})
 	if err != nil {
-		log.Warn(err)
+		log.Error(err)
 		return
 	}
 
 	// validation check
 	if !resp.Node.Dir {
-		log.Warn("not a directory")
+		log.Error("not a directory")
 		return
 	}
 
@@ -149,7 +149,7 @@ func (p *servicePool) watcher() {
 	for {
 		resp, err := w.Next(context.Background())
 		if err != nil {
-			log.Warn(err)
+			log.Error(err)
 			continue
 		}
 		if resp.Node.Dir {
@@ -192,7 +192,7 @@ func (p *servicePool) addService(key, val string) {
 			}
 		}
 	} else {
-		log.Warn("did not connect:", key, "-->", val, " error:", err)
+		log.Error("did not connect:", key, "-->", val, " error:", err)
 	}
 }
 
@@ -209,7 +209,7 @@ func (p *servicePool) removeService(key string) {
 	// check service kind
 	service := p.services[serviceName]
 	if service == nil {
-		log.Warn("no such service:", serviceName)
+		log.Error("no such service:", serviceName)
 		return
 	}
 
