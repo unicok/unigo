@@ -78,12 +78,7 @@ func (c *DialContext) Query(f QueryFunc) error {
 	return f(s)
 }
 
-func (c *DialContext) Insert(db, col, id string) error {
-	// check id
-	if _, err := isValidId(id); err != nil {
-		return err
-	}
-
+func (c *DialContext) EnsureCounter(db, col, id string) error {
 	return c.Query(func(s *Session) error {
 		err := s.DB(db).C(col).Insert(bson.M{
 			"_id": id,
@@ -97,10 +92,6 @@ func (c *DialContext) Insert(db, col, id string) error {
 }
 
 func (c *DialContext) NextSeq(db, col, id string) (int, error) {
-	// check id
-	if _, err := isValidId(id); err != nil {
-		return 0, err
-	}
 	// result struct
 	var res struct{ Seq int }
 	err := c.Query(func(s *Session) error {

@@ -9,6 +9,7 @@ import (
 
 	_ "lib/logger"
 	pb "lib/proto/auth"
+	sp "lib/services"
 	_ "lib/statsd-pprof"
 )
 
@@ -24,11 +25,14 @@ func main() {
 	}
 	log.Info("listening on:", lis.Addr())
 
+	sp.Init("snowflake")
+
 	// 注册服务
 	s := grpc.NewServer()
 	ins := &server{}
 	ins.init()
 	pb.RegisterAuthServiceServer(s, ins)
+
 	// 开始服务
 	s.Serve(lis)
 }
