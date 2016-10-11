@@ -65,10 +65,13 @@ func (c *DialContext) Close() {
 }
 
 // ExecuteFunc define
-type QueryFunc func(s *Session) error
+type ExecuteFunc func(s *Session) error
+
+// DBActionFunc define
+type DBActionFunc func(c *mgo.Collection) error
 
 // Query excute command
-func (c *DialContext) Query(f QueryFunc) error {
+func (c *DialContext) Execute(f ExecuteFunc) error {
 	// latch control
 	s := <-c.latch
 	defer func() {
@@ -78,8 +81,18 @@ func (c *DialContext) Query(f QueryFunc) error {
 	return f(s)
 }
 
+func (c *DialContext) DBAction(db, col string, f DBActionFunc) error {
+	// latch control
+	s := <-c.latch
+	defer func() {
+		c.latch <- s
+	}()
+	s.Refresh()
+	return f(s.DB(db).C(col))
+}
+
 func (c *DialContext) EnsureCounter(db, col, id string) error {
-	return c.Query(func(s *Session) error {
+	return c.Execute(func(s *Session) error {
 		err := s.DB(db).C(col).Insert(bson.M{
 			"_id": id,
 			"seq": 0,
@@ -94,7 +107,7 @@ func (c *DialContext) EnsureCounter(db, col, id string) error {
 func (c *DialContext) NextSeq(db, col, id string) (int, error) {
 	// result struct
 	var res struct{ Seq int }
-	err := c.Query(func(s *Session) error {
+	err := c.Execute(func(s *Session) error {
 		_, err := s.DB(db).C(col).FindId(id).Apply(mgo.Change{
 			Update:    bson.M{"$inc": bson.M{"seq": 1}},
 			ReturnNew: true,
@@ -107,7 +120,7 @@ func (c *DialContext) NextSeq(db, col, id string) (int, error) {
 }
 
 func (c *DialContext) EnsureIndex(db, col string, keys []string) error {
-	return c.Query(func(s *Session) error {
+	return c.Execute(func(s *Session) error {
 		return s.DB(db).C(col).EnsureIndex(mgo.Index{
 			Key:    keys,
 			Unique: false,
@@ -117,7 +130,7 @@ func (c *DialContext) EnsureIndex(db, col string, keys []string) error {
 }
 
 func (c *DialContext) EnsureUniqueIndex(db, col string, keys []string) error {
-	return c.Query(func(s *Session) error {
+	return c.Execute(func(s *Session) error {
 		return s.DB(db).C(col).EnsureIndex(mgo.Index{
 			Key:    keys,
 			Unique: true,

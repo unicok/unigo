@@ -1,19 +1,24 @@
 package main
 
 import (
+	"common/models"
+	"encoding/json"
 	"errors"
 	"os"
 	"regexp"
 	"strings"
 
+	"gopkg.in/mgo.v2"
+
 	log "github.com/Sirupsen/logrus"
 
 	"golang.org/x/net/context"
 
-	"lib/db/mgo"
-	pb "lib/proto/auth"
-	sf "lib/proto/snowflake"
+	db "lib/db/mongodb"
+	"lib/proto/auth"
+	"lib/proto/snowflake"
 	sp "lib/services"
+	"lib/utils"
 )
 
 const (
@@ -26,12 +31,14 @@ const (
 var (
 	ErrorMethodNotSupported = errors.New("method not supported")
 
+	AuthFailResult = &auth.Auth_Result{OK: false, UserId: 0, Body: nil}
+
 	uuidRegexp = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
 )
 
 type server struct {
-	sfClient sf.SnowflakeServiceClient
-	db       *mgo.DialContext
+	sfClient snowflake.SnowflakeServiceClient
+	db       *db.DialContext
 }
 
 func (s *server) init() {
@@ -41,7 +48,7 @@ func (s *server) init() {
 		log.Panic("cannot get snowflake service")
 		os.Exit(-1)
 	}
-	s.sfClient = sf.NewSnowflakeServiceClient(conn)
+	s.sfClient = snowflake.NewSnowflakeServiceClient(conn)
 
 	// 连接db
 	mongodbURL := DefaultMongodbURL
@@ -50,21 +57,30 @@ func (s *server) init() {
 	}
 
 	var err error
-	s.db, err = mgo.Dial(mongodbURL, mgo.DefaultConcurrent)
+	s.db, err = db.Dial(mongodbURL, db.DefaultConcurrent)
 	if err != nil {
 		log.Panic("mongodb: cannot connect to", mongodbURL, err)
 		os.Exit(-1)
 	}
 }
 
-func (s *server) Auth(ctx context.Context, cert *pb.Auth_Certificate) (*pb.Auth_Result, error) {
+func (s *server) Auth(ctx context.Context, cert *auth.Auth_Certificate) (*auth.Auth_Result, error) {
 	switch cert.Type {
-	case pb.Auth_UUID:
+	case auth.Auth_UUID:
 		if uuidRegexp.MatchString(strings.ToLower(string(cert.Proof))) {
-			return &pb.Auth_Result{OK: true, UserId: 0, Body: nil}, nil
+			return AuthFailResult, nil
 		}
-		return &pb.Auth_Result{OK: true, UserId: 0, Body: nil}, nil
-	case pb.Auth_PLAIN:
+		return &auth.Auth_Result{OK: true, UserId: 0, Body: nil}, nil
+	case auth.Auth_PLAIN:
+		var p struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}
+		if err := json.Unmarshal(cert.Proof, &p); err != nil {
+			log.Error("Auth plain invalid, proof:", utils.Bytes2Str(cert.Proof))
+			return AuthFailResult, nil
+		}
+
 		// 登录验证步骤
 		// 1.查询数据库,验证用户名密码 验证成功则直接返回
 		// 2.如果不成功,获取自增ID
@@ -72,21 +88,30 @@ func (s *server) Auth(ctx context.Context, cert *pb.Auth_Certificate) (*pb.Auth_
 
 		// 验证用户
 		var err error
-		s.db.Query(func(sess *mgo.Session) error {
-			// sess.DB(DBAccount).C("user").Find("")
-			return nil
+		var account models.Account
+		err = s.db.DBAction(DBAccount, "account", func(c *mgo.Collection) error {
+			return c.Find(p.Username).One(&account)
 		})
-		// 获取ID
-		res, err := s.sfClient.Next(context.Background(), &sf.Snowflake_Key{Name: "userid"})
 		if err != nil {
-			return &pb.Auth_Result{OK: false, UserId: 0, Body: nil}, nil
+			return AuthFailResult, nil
+		}
+
+		if account.Pass == p.Password {
+			return &auth.Auth_Result{OK: true, UserId: account.UserId, Body: nil}, nil
+		}
+
+		// 获取ID
+		res, err := s.sfClient.Next(context.Background(), &snowflake.Snowflake_Key{Name: "userid"})
+		if err != nil {
+			return AuthFailResult, nil
 		}
 
 		log.Info("new userid:", res.Value)
+
 		// 创建用户
 
-	case pb.Auth_TOKEN:
-	case pb.Auth_FACEBOOK:
+	case auth.Auth_TOKEN:
+	case auth.Auth_FACEBOOK:
 	default:
 		return nil, ErrorMethodNotSupported
 	}

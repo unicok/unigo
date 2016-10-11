@@ -3,7 +3,7 @@
 // DO NOT EDIT!
 
 /*
-Package proto is a generated protocol buffer package.
+Package chat is a generated protocol buffer package.
 
 It is generated from these files:
 	chat.proto
@@ -11,9 +11,9 @@ It is generated from these files:
 It has these top-level messages:
 	Chat
 */
-package proto
+package chat
 
-import proto1 "github.com/golang/protobuf/proto"
+import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 
@@ -23,7 +23,7 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto1.Marshal
+var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
@@ -31,13 +31,13 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto1.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Chat struct {
 }
 
 func (m *Chat) Reset()                    { *m = Chat{} }
-func (m *Chat) String() string            { return proto1.CompactTextString(m) }
+func (m *Chat) String() string            { return proto.CompactTextString(m) }
 func (*Chat) ProtoMessage()               {}
 func (*Chat) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
@@ -45,34 +45,34 @@ type Chat_Nil struct {
 }
 
 func (m *Chat_Nil) Reset()                    { *m = Chat_Nil{} }
-func (m *Chat_Nil) String() string            { return proto1.CompactTextString(m) }
+func (m *Chat_Nil) String() string            { return proto.CompactTextString(m) }
 func (*Chat_Nil) ProtoMessage()               {}
 func (*Chat_Nil) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
 
 type Chat_Message struct {
-	Id   uint64 `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
-	Body []byte `protobuf:"bytes,2,opt,name=Body,proto3" json:"Body,omitempty"`
+	Id   uint64 `protobuf:"varint,1,opt,name=Id,json=id" json:"Id,omitempty"`
+	Body []byte `protobuf:"bytes,2,opt,name=Body,json=body,proto3" json:"Body,omitempty"`
 }
 
 func (m *Chat_Message) Reset()                    { *m = Chat_Message{} }
-func (m *Chat_Message) String() string            { return proto1.CompactTextString(m) }
+func (m *Chat_Message) String() string            { return proto.CompactTextString(m) }
 func (*Chat_Message) ProtoMessage()               {}
 func (*Chat_Message) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 1} }
 
 type Chat_Id struct {
-	Id uint64 `protobuf:"varint,1,opt,name=Id" json:"Id,omitempty"`
+	Id uint64 `protobuf:"varint,1,opt,name=Id,json=id" json:"Id,omitempty"`
 }
 
 func (m *Chat_Id) Reset()                    { *m = Chat_Id{} }
-func (m *Chat_Id) String() string            { return proto1.CompactTextString(m) }
+func (m *Chat_Id) String() string            { return proto.CompactTextString(m) }
 func (*Chat_Id) ProtoMessage()               {}
 func (*Chat_Id) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 2} }
 
 func init() {
-	proto1.RegisterType((*Chat)(nil), "proto.Chat")
-	proto1.RegisterType((*Chat_Nil)(nil), "proto.Chat.Nil")
-	proto1.RegisterType((*Chat_Message)(nil), "proto.Chat.Message")
-	proto1.RegisterType((*Chat_Id)(nil), "proto.Chat.Id")
+	proto.RegisterType((*Chat)(nil), "chat.Chat")
+	proto.RegisterType((*Chat_Nil)(nil), "chat.Chat.Nil")
+	proto.RegisterType((*Chat_Message)(nil), "chat.Chat.Message")
+	proto.RegisterType((*Chat_Id)(nil), "chat.Chat.Id")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -100,7 +100,7 @@ func NewChatServiceClient(cc *grpc.ClientConn) ChatServiceClient {
 }
 
 func (c *chatServiceClient) Subscribe(ctx context.Context, in *Chat_Id, opts ...grpc.CallOption) (ChatService_SubscribeClient, error) {
-	stream, err := grpc.NewClientStream(ctx, &_ChatService_serviceDesc.Streams[0], c.cc, "/proto.ChatService/Subscribe", opts...)
+	stream, err := grpc.NewClientStream(ctx, &_ChatService_serviceDesc.Streams[0], c.cc, "/chat.ChatService/Subscribe", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +133,7 @@ func (x *chatServiceSubscribeClient) Recv() (*Chat_Message, error) {
 
 func (c *chatServiceClient) Send(ctx context.Context, in *Chat_Message, opts ...grpc.CallOption) (*Chat_Nil, error) {
 	out := new(Chat_Nil)
-	err := grpc.Invoke(ctx, "/proto.ChatService/Send", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/chat.ChatService/Send", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +142,7 @@ func (c *chatServiceClient) Send(ctx context.Context, in *Chat_Message, opts ...
 
 func (c *chatServiceClient) Reg(ctx context.Context, in *Chat_Id, opts ...grpc.CallOption) (*Chat_Nil, error) {
 	out := new(Chat_Nil)
-	err := grpc.Invoke(ctx, "/proto.ChatService/Reg", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/chat.ChatService/Reg", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -192,7 +192,7 @@ func _ChatService_Send_Handler(srv interface{}, ctx context.Context, dec func(in
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.ChatService/Send",
+		FullMethod: "/chat.ChatService/Send",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).Send(ctx, req.(*Chat_Message))
@@ -210,7 +210,7 @@ func _ChatService_Reg_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.ChatService/Reg",
+		FullMethod: "/chat.ChatService/Reg",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ChatServiceServer).Reg(ctx, req.(*Chat_Id))
@@ -219,7 +219,7 @@ func _ChatService_Reg_Handler(srv interface{}, ctx context.Context, dec func(int
 }
 
 var _ChatService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.ChatService",
+	ServiceName: "chat.ChatService",
 	HandlerType: (*ChatServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -241,20 +241,20 @@ var _ChatService_serviceDesc = grpc.ServiceDesc{
 	Metadata: fileDescriptor0,
 }
 
-func init() { proto1.RegisterFile("chat.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("chat.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 177 bytes of a gzipped FileDescriptorProto
+	// 188 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x4a, 0xce, 0x48, 0x2c,
-	0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x53, 0x4a, 0x2e, 0x5c, 0x2c, 0xce, 0x19,
-	0x89, 0x25, 0x52, 0xac, 0x5c, 0xcc, 0x7e, 0x99, 0x39, 0x52, 0xca, 0x5c, 0xec, 0xbe, 0xa9, 0xc5,
-	0xc5, 0x89, 0xe9, 0xa9, 0x42, 0x5c, 0x5c, 0x4c, 0x9e, 0x29, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x2c,
-	0x42, 0x3c, 0x5c, 0x2c, 0x4e, 0xf9, 0x29, 0x95, 0x12, 0x4c, 0x0a, 0x8c, 0x1a, 0x3c, 0x52, 0x02,
-	0x20, 0x19, 0x64, 0x79, 0xa3, 0xe9, 0x8c, 0x5c, 0xdc, 0x20, 0x63, 0x82, 0x53, 0x8b, 0xca, 0x32,
-	0x93, 0x53, 0x85, 0x8c, 0xb8, 0x38, 0x83, 0x4b, 0x93, 0x8a, 0x93, 0x8b, 0x32, 0x93, 0x52, 0x85,
-	0xf8, 0x20, 0x36, 0xea, 0x81, 0x14, 0xe8, 0x79, 0xa6, 0x48, 0x09, 0x23, 0xf3, 0xa1, 0xb6, 0x19,
-	0x30, 0x0a, 0xe9, 0x70, 0xb1, 0x04, 0xa7, 0xe6, 0xa5, 0x08, 0x61, 0x93, 0x96, 0xe2, 0x47, 0x16,
-	0xf4, 0xcb, 0xcc, 0x11, 0x52, 0xe3, 0x62, 0x0e, 0x4a, 0x4d, 0xc7, 0x30, 0x1b, 0x5d, 0x5d, 0x12,
-	0x1b, 0x98, 0x6f, 0x0c, 0x08, 0x00, 0x00, 0xff, 0xff, 0x4c, 0x89, 0x1f, 0xbf, 0xfb, 0x00, 0x00,
-	0x00,
+	0xd1, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x01, 0xb1, 0x95, 0x82, 0xb8, 0x58, 0x9c, 0x33,
+	0x12, 0x4b, 0xa4, 0x58, 0xb9, 0x98, 0xfd, 0x32, 0x73, 0xa4, 0x74, 0xb9, 0xd8, 0x7d, 0x53, 0x8b,
+	0x8b, 0x13, 0xd3, 0x53, 0x85, 0xf8, 0xb8, 0x98, 0x3c, 0x53, 0x24, 0x18, 0x15, 0x18, 0x35, 0x58,
+	0x82, 0x98, 0x32, 0x53, 0x84, 0x84, 0xb8, 0x58, 0x9c, 0xf2, 0x53, 0x2a, 0x25, 0x98, 0x14, 0x18,
+	0x35, 0x78, 0x82, 0x58, 0x92, 0xf2, 0x53, 0x2a, 0xa5, 0x44, 0x40, 0x6a, 0xd0, 0x55, 0x1a, 0x4d,
+	0x64, 0xe4, 0xe2, 0x06, 0x19, 0x1a, 0x9c, 0x5a, 0x54, 0x96, 0x99, 0x9c, 0x2a, 0x64, 0xc0, 0xc5,
+	0x19, 0x5c, 0x9a, 0x54, 0x9c, 0x5c, 0x94, 0x99, 0x94, 0x2a, 0xc4, 0xab, 0x07, 0x76, 0x03, 0x48,
+	0x5e, 0xcf, 0x33, 0x45, 0x4a, 0x08, 0x89, 0x0b, 0xb5, 0xd9, 0x80, 0x51, 0x48, 0x8b, 0x8b, 0x25,
+	0x38, 0x35, 0x2f, 0x45, 0x08, 0x8b, 0xac, 0x14, 0x1f, 0x92, 0x98, 0x5f, 0x66, 0x8e, 0x90, 0x0a,
+	0x17, 0x73, 0x50, 0x6a, 0x3a, 0xba, 0xb9, 0x68, 0xaa, 0x92, 0xd8, 0xc0, 0x9e, 0x36, 0x06, 0x04,
+	0x00, 0x00, 0xff, 0xff, 0x7f, 0xfa, 0x13, 0x6d, 0x02, 0x01, 0x00, 0x00,
 }
