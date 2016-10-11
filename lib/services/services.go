@@ -1,13 +1,13 @@
 package services
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
 
+	log "github.com/Sirupsen/logrus"
 	etcdclient "github.com/coreos/etcd/client"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
@@ -85,7 +85,7 @@ func (p *servicePool) init(names ...string) {
 		p.enableNameCheck = true
 	}
 
-	log.Println("all service names:", names)
+	log.Info("all service names:", names)
 	for _, v := range names {
 		p.knownNames[DefaultServicePath+"/"+strings.TrimSpace(v)] = true
 	}
@@ -97,16 +97,16 @@ func (p *servicePool) init(names ...string) {
 func (p *servicePool) loadNames() []string {
 	kapi := etcdclient.NewKeysAPI(p.client)
 	// get the keys under directory
-	log.Println("reading names:", defaultNameFile)
+	log.Info("reading names:", defaultNameFile)
 	resp, err := kapi.Get(context.Background(), defaultNameFile, nil)
 	if err != nil {
-		log.Println(err)
+		log.Warn(err)
 		return nil
 	}
 
 	// validation check
 	if resp.Node.Dir {
-		log.Println("names is not a file")
+		log.Warn("names is not a file")
 		return nil
 	}
 
@@ -118,16 +118,16 @@ func (p *servicePool) loadNames() []string {
 func (p *servicePool) connectAll(dir string) {
 	kapi := etcdclient.NewKeysAPI(p.client)
 	// get the keys under directory
-	log.Println("connecting services under:", dir)
+	log.Info("connecting services under:", dir)
 	resp, err := kapi.Get(context.Background(), dir, &etcdclient.GetOptions{Recursive: true})
 	if err != nil {
-		log.Println(err)
+		log.Warn(err)
 		return
 	}
 
 	// validation check
 	if !resp.Node.Dir {
-		log.Println("not a directory")
+		log.Warn("not a directory")
 		return
 	}
 
@@ -138,7 +138,7 @@ func (p *servicePool) connectAll(dir string) {
 			}
 		}
 	}
-	log.Println("services add completed")
+	log.Info("services add completed")
 
 	go p.watcher()
 }
@@ -149,7 +149,7 @@ func (p *servicePool) watcher() {
 	for {
 		resp, err := w.Next(context.Background())
 		if err != nil {
-			log.Println(err)
+			log.Warn(err)
 			continue
 		}
 		if resp.Node.Dir {
@@ -184,7 +184,7 @@ func (p *servicePool) addService(key, val string) {
 	service := p.services[serviceName]
 	if conn, err := grpc.Dial(val, grpc.WithBlock(), grpc.WithInsecure()); err == nil {
 		service.clients = append(service.clients, client{key, conn})
-		log.Println("service added:", key, "-->", val)
+		log.Info("service added:", key, "-->", val)
 		for k := range p.cbs[serviceName] {
 			select {
 			case p.cbs[serviceName][k] <- key:
@@ -192,7 +192,7 @@ func (p *servicePool) addService(key, val string) {
 			}
 		}
 	} else {
-		log.Println("did not connect:", key, "-->", val, " error:", err)
+		log.Warn("did not connect:", key, "-->", val, " error:", err)
 	}
 }
 
@@ -209,7 +209,7 @@ func (p *servicePool) removeService(key string) {
 	// check service kind
 	service := p.services[serviceName]
 	if service == nil {
-		log.Println("no such service:", serviceName)
+		log.Warn("no such service:", serviceName)
 		return
 	}
 
@@ -217,7 +217,7 @@ func (p *servicePool) removeService(key string) {
 	for k := range service.clients {
 		if service.clients[k].key == key {
 			service.clients = append(service.clients[:k], service.clients[k+1:]...)
-			log.Println("service removed:", key)
+			log.Info("service removed:", key)
 			return
 		}
 	}
@@ -279,7 +279,7 @@ func (p *servicePool) registerCallback(path string, cb chan string) {
 			cb <- s.clients[k].key
 		}
 	}
-	log.Println("register callback on:", path)
+	log.Info("register callback on:", path)
 }
 
 // GetService is getting a service in round-robin style
