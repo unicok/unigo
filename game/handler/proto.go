@@ -5,15 +5,15 @@ package handler
 import "lib/packet"
 
 type S_auto_id struct {
-	F_id int32
+	F_id uint64
 }
 
 func (p S_auto_id) Pack(w *packet.Packet) {
-	w.WriteS32(p.F_id)
+	w.WriteU64(p.F_id)
 }
 
 func PKT_auto_id(reader *packet.Packet) (tbl S_auto_id, err error) {
-	tbl.F_id, err = reader.ReadS32()
+	tbl.F_id, err = reader.ReadU64()
 	checkErr(err)
 
 	return
@@ -21,7 +21,7 @@ func PKT_auto_id(reader *packet.Packet) (tbl S_auto_id, err error) {
 
 type S_error_info struct {
 	F_code int32
-	F_msg  string
+	F_msg string
 }
 
 func (p S_error_info) Pack(w *packet.Packet) {
@@ -39,17 +39,17 @@ func PKT_error_info(reader *packet.Packet) (tbl S_error_info, err error) {
 }
 
 type S_user_login_info struct {
-	F_login_way          int32
-	F_open_udid          string
+	F_login_way int32
+	F_open_udid string
 	F_client_certificate string
-	F_client_version     int32
-	F_user_lang          string
-	F_app_id             string
-	F_os_version         string
-	F_device_name        string
-	F_device_id          string
-	F_device_id_type     int32
-	F_login_ip           string
+	F_client_version int32
+	F_user_lang string
+	F_app_id string
+	F_os_version string
+	F_device_name string
+	F_device_id string
+	F_device_id_type int32
+	F_login_ip string
 }
 
 func (p S_user_login_info) Pack(w *packet.Packet) {
@@ -94,7 +94,7 @@ func PKT_user_login_info(reader *packet.Packet) (tbl S_user_login_info, err erro
 }
 
 type S_seed_info struct {
-	F_client_send_seed    int32
+	F_client_send_seed int32
 	F_client_receive_seed int32
 }
 
@@ -113,15 +113,15 @@ func PKT_seed_info(reader *packet.Packet) (tbl S_seed_info, err error) {
 }
 
 type S_user_snapshot struct {
-	F_uid int32
+	F_uid uint64
 }
 
 func (p S_user_snapshot) Pack(w *packet.Packet) {
-	w.WriteS32(p.F_uid)
+	w.WriteU64(p.F_uid)
 }
 
 func PKT_user_snapshot(reader *packet.Packet) (tbl S_user_snapshot, err error) {
-	tbl.F_uid, err = reader.ReadS32()
+	tbl.F_uid, err = reader.ReadU64()
 	checkErr(err)
 
 	return

@@ -1,12 +1,12 @@
 #!/bin/sh
 
-ROOT_PATH=$PWD/..
+ROOT_PATH=$PWD
 
-cd $ROOT_PATH/lib/proto/game
+cd $ROOT_PATH/game
 protoc  ./*.proto --go_out=plugins=grpc:./
-cd $ROOT_PATH/lib/proto/snowflake
+cd $ROOT_PATH/snowflake
 protoc  ./*.proto --go_out=plugins=grpc:./
-cd $ROOT_PATH/lib/proto/Chat
+cd $ROOT_PATH/chat
 protoc  ./*.proto --go_out=plugins=grpc:./
-cd $ROOT_PATH/lib/proto/Auth
+cd $ROOT_PATH/auth
 protoc  ./*.proto --go_out=plugins=grpc:./

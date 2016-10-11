@@ -6,49 +6,49 @@ import "lib/packet"
 import . "agent/types"
 
 const (
-	E_heart_beat_req         = "heart_beat_req"
-	E_heart_beat_ack         = "heart_beat_ack"
-	E_user_login_req         = "user_login_req"
+	E_heart_beat_req = "heart_beat_req"
+	E_heart_beat_ack = "heart_beat_ack"
+	E_user_login_req = "user_login_req"
 	E_user_login_succeed_ack = "user_login_succeed_ack"
-	E_user_login_faild_ack   = "user_login_faild_ack"
-	E_client_error_ack       = "client_error_ack"
-	E_get_seed_req           = "get_seed_req"
-	E_get_seed_ack           = "get_seed_ack"
-	E_proto_ping_req         = "proto_ping_req"
-	E_proto_ping_ack         = "proto_ping_ack"
+	E_user_login_faild_ack = "user_login_faild_ack"
+	E_client_error_ack = "client_error_ack"
+	E_get_seed_req = "get_seed_req"
+	E_get_seed_ack = "get_seed_ack"
+	E_proto_ping_req = "proto_ping_req"
+	E_proto_ping_ack = "proto_ping_ack"
 )
 
 var Code = map[string]int16{
-	E_heart_beat_req:         0,    // 心跳包..
-	E_heart_beat_ack:         1,    // 心跳包回复
-	E_user_login_req:         10,   // 登陆
-	E_user_login_succeed_ack: 11,   // 登陆成功
-	E_user_login_faild_ack:   12,   // 登陆失败
-	E_client_error_ack:       13,   // 客户端错误
-	E_get_seed_req:           30,   // socket通信加密使用
-	E_get_seed_ack:           31,   // socket通信加密使用
-	E_proto_ping_req:         1001, //  ping
-	E_proto_ping_ack:         1002, //  ping回复
+	E_heart_beat_req: 0, // 心跳包..
+	E_heart_beat_ack: 1, // 心跳包回复
+	E_user_login_req: 10, // 登陆
+	E_user_login_succeed_ack: 11, // 登陆成功
+	E_user_login_faild_ack: 12, // 登陆失败
+	E_client_error_ack: 13, // 客户端错误
+	E_get_seed_req: 30, // socket通信加密使用
+	E_get_seed_ack: 31, // socket通信加密使用
+	E_proto_ping_req: 1001, //  ping
+	E_proto_ping_ack: 1002, //  ping回复
 }
 
 var RCode = map[int16]string{
-	0:    E_heart_beat_req,         // 心跳包..
-	1:    E_heart_beat_ack,         // 心跳包回复
-	10:   E_user_login_req,         // 登陆
-	11:   E_user_login_succeed_ack, // 登陆成功
-	12:   E_user_login_faild_ack,   // 登陆失败
-	13:   E_client_error_ack,       // 客户端错误
-	30:   E_get_seed_req,           // socket通信加密使用
-	31:   E_get_seed_ack,           // socket通信加密使用
-	1001: E_proto_ping_req,         //  ping
-	1002: E_proto_ping_ack,         //  ping回复
+	0: E_heart_beat_req, // 心跳包..
+	1: E_heart_beat_ack, // 心跳包回复
+	10: E_user_login_req, // 登陆
+	11: E_user_login_succeed_ack, // 登陆成功
+	12: E_user_login_faild_ack, // 登陆失败
+	13: E_client_error_ack, // 客户端错误
+	30: E_get_seed_req, // socket通信加密使用
+	31: E_get_seed_ack, // socket通信加密使用
+	1001: E_proto_ping_req, //  ping
+	1002: E_proto_ping_ack, //  ping回复
 }
 
 var Handlers map[int16]func(*Session, *packet.Packet) []byte
 
 func init() {
 	Handlers = map[int16]func(*Session, *packet.Packet) []byte{
-		0:  P_heart_beat_req,
+		0: P_heart_beat_req,
 		10: P_user_login_req,
 		30: P_get_seed_req,
 	}

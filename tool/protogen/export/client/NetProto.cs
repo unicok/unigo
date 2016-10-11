@@ -14,17 +14,17 @@ namespace NetProto.Proto
 
     public class auto_id : NetBase
     {
-        public Int32 id;
+        public UInt64 id;
 
         public override void Pack(ByteArray w)
         {
-            w.WriteInt32(this.id);
+            w.WriteUnsignedInt64(this.id);
         }
 
         public static auto_id UnPack(ByteArray reader)
         {
             auto_id tbl = new auto_id();
-            tbl.id = reader.ReadInt32();
+            tbl.id = reader.ReadUnsignedInt64();
 
             return tbl;
         }
@@ -122,17 +122,17 @@ namespace NetProto.Proto
 
     public class user_snapshot : NetBase
     {
-        public Int32 uid;
+        public UInt64 uid;
 
         public override void Pack(ByteArray w)
         {
-            w.WriteInt32(this.uid);
+            w.WriteUnsignedInt64(this.uid);
         }
 
         public static user_snapshot UnPack(ByteArray reader)
         {
             user_snapshot tbl = new user_snapshot();
-            tbl.uid = reader.ReadInt32();
+            tbl.uid = reader.ReadUnsignedInt64();
 
             return tbl;
         }

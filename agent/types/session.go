@@ -20,7 +20,7 @@ type Session struct {
 	MQ      chan pb.Game_Frame          // 返回给客户端的异步消息
 	Encoder *rc4.Cipher                 // 加密器
 	Decoder *rc4.Cipher                 // 解密器
-	UserID  int32                       // 玩家ID
+	UserID  uint64                      // 玩家ID
 	GSID    string                      // 游戏服ID;e.g.: game1,game2
 	Stream  pb.GameService_StreamClient // 后端游戏服数据流
 	Die     chan struct{}               // 会话关闭信号

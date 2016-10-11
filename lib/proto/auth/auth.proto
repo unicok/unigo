@@ -22,7 +22,7 @@ message Auth {
 
     message Result {
         bool OK = 1;
-        int32 UserId = 2;
+        uint64 UserId = 2;
         bytes Body = 3;
     }
 }
