@@ -1,4 +1,4 @@
 FROM busybox
-COPY go/bin/chat /usr/bin/auth
+COPY go/bin/auth /usr/bin/auth
 EXPOSE 50006
 ENTRYPOINT ["auth"]
