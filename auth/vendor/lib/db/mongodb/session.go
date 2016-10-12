@@ -1,4 +1,4 @@
-package mgo
+package mongodb
 
 import (
 	"sync"
@@ -16,18 +16,17 @@ const (
 	// EnvMongodb        = "MONGODB_URL"
 )
 
-// Session define
-type Session struct {
+type session struct {
 	*mgo.Session
 }
 
 type DialContext struct {
 	sync.Mutex
-	latch chan *Session
+	latch chan *session
 }
 
 func Dial(url string, concurrent int) (*DialContext, error) {
-	return DialWithTimeout(url, concurrent, 10*time.Second, DefaultMGOTimeout)
+	return DialWithTimeout(url, concurrent, 10*time.Second, DefaultMGOTimeout*time.Second)
 }
 
 func DialWithTimeout(url string, concurrent int, dialTimeout time.Duration, timeout time.Duration) (*DialContext, error) {
@@ -48,24 +47,24 @@ func DialWithTimeout(url string, concurrent int, dialTimeout time.Duration, time
 
 	c := &DialContext{}
 	// create latch
-	c.latch = make(chan *Session, concurrent)
+	c.latch = make(chan *session, concurrent)
 	for i := 0; i < concurrent; i++ {
-		c.latch <- &Session{s.Copy()}
+		c.latch <- &session{s.Copy()}
 	}
 
 	return c, nil
 }
 
 func (c *DialContext) Close() {
-	c.Lock()
-	defer c.Unlock()
+	// c.Lock()
+	// defer c.Unlock()
 	for s := range c.latch {
 		s.Close()
 	}
 }
 
 // ExecuteFunc define
-type ExecuteFunc func(s *Session) error
+type ExecuteFunc func(s *session) error
 
 // DBActionFunc define
 type DBActionFunc func(c *mgo.Collection) error
@@ -88,11 +87,12 @@ func (c *DialContext) DBAction(db, col string, f DBActionFunc) error {
 		c.latch <- s
 	}()
 	s.Refresh()
-	return f(s.DB(db).C(col))
+	cl := s.DB(db).C(col)
+	return f(cl)
 }
 
 func (c *DialContext) EnsureCounter(db, col, id string) error {
-	return c.Execute(func(s *Session) error {
+	return c.Execute(func(s *session) error {
 		err := s.DB(db).C(col).Insert(bson.M{
 			"_id": id,
 			"seq": 0,
@@ -107,7 +107,7 @@ func (c *DialContext) EnsureCounter(db, col, id string) error {
 func (c *DialContext) NextSeq(db, col, id string) (int, error) {
 	// result struct
 	var res struct{ Seq int }
-	err := c.Execute(func(s *Session) error {
+	err := c.Execute(func(s *session) error {
 		_, err := s.DB(db).C(col).FindId(id).Apply(mgo.Change{
 			Update:    bson.M{"$inc": bson.M{"seq": 1}},
 			ReturnNew: true,
@@ -120,7 +120,7 @@ func (c *DialContext) NextSeq(db, col, id string) (int, error) {
 }
 
 func (c *DialContext) EnsureIndex(db, col string, keys []string) error {
-	return c.Execute(func(s *Session) error {
+	return c.Execute(func(s *session) error {
 		return s.DB(db).C(col).EnsureIndex(mgo.Index{
 			Key:    keys,
 			Unique: false,
@@ -130,7 +130,7 @@ func (c *DialContext) EnsureIndex(db, col string, keys []string) error {
 }
 
 func (c *DialContext) EnsureUniqueIndex(db, col string, keys []string) error {
-	return c.Execute(func(s *Session) error {
+	return c.Execute(func(s *session) error {
 		return s.DB(db).C(col).EnsureIndex(mgo.Index{
 			Key:    keys,
 			Unique: true,

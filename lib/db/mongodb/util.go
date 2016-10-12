@@ -11,8 +11,7 @@ The result is easier maintenance of your project since these values are saved in
 You can also store your global session data in this file instead of relying on the global variable below.
 Note: this package is not meant to meant for production environments.
 */
-
-package mgo
+package mongodb
 
 import (
 	"errors"

@@ -62,7 +62,7 @@ func (s *server) init() {
 	var err error
 	accDB, err = db.Dial(mongodbURL, db.DefaultConcurrent)
 	if err != nil {
-		log.Panic("mongodb: cannot connect to", mongodbURL, err)
+		log.Panicf("mongodb: cannot connect to %v, err: %v", mongodbURL, err)
 		os.Exit(-1)
 	}
 }
