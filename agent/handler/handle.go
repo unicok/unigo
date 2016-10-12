@@ -94,7 +94,7 @@ func P_user_login_req(sess *Session, reader *packet.Packet) []byte {
 		return nil
 	}
 
-	authRes, err := authCli.Auth(context.Background(), &auth.Auth_Certificate{Type: 2, Proof: proof})
+	authRes, err := authCli.Auth(context.Background(), &auth.Auth_Certificate{Type: 1, Proof: proof})
 	if err != nil {
 		log.Error(err)
 		return nil
