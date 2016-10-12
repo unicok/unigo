@@ -26,15 +26,27 @@ type client struct {
 	conn *grpc.ClientConn
 }
 
+type param struct {
+	key   string
+	value string
+}
+
 // service is a kind of service
 type service struct {
 	clients []client
 	idx     uint32 // for round-robin purpose
 }
 
+// extraService is a kind of all service that store param
+type extraService struct {
+	params []param
+	idx    uint32 // for round-robin purpose
+}
+
 // all services
 type servicePool struct {
 	services        map[string]*service
+	extraService    map[string]*extraService
 	knownNames      map[string]bool // store names.txt
 	enableNameCheck bool
 	client          etcdclient.Client
@@ -75,6 +87,7 @@ func (p *servicePool) init(names ...string) {
 
 	// init
 	p.services = make(map[string]*service)
+	p.extraService = make(map[string]*extraService)
 	p.knownNames = make(map[string]bool)
 
 	// names init
@@ -171,6 +184,15 @@ func (p *servicePool) addService(key, val string) {
 
 	// name check
 	serviceName := filepath.Dir(key)
+
+	// all service
+	if p.extraService[serviceName] == nil {
+		p.extraService[serviceName] = &extraService{}
+	}
+
+	extraService := p.extraService[serviceName]
+	extraService.params = append(extraService.params, param{key, val})
+
 	if p.enableNameCheck && !p.knownNames[serviceName] {
 		return
 	}
@@ -202,6 +224,19 @@ func (p *servicePool) removeService(key string) {
 
 	// name check
 	serviceName := filepath.Dir(key)
+
+	extraService := p.extraService[serviceName]
+	if extraService != nil {
+		// remove a service
+		for k := range extraService.params {
+			if extraService.params[k].key == key {
+				extraService.params = append(extraService.params[:k], extraService.params[k+1:]...)
+				log.Info("extra service removed:", key)
+				break
+			}
+		}
+	}
+
 	if p.enableNameCheck && !p.knownNames[serviceName] {
 		return
 	}
@@ -221,6 +256,49 @@ func (p *servicePool) removeService(key string) {
 			return
 		}
 	}
+}
+
+func (p *servicePool) getExtraServiceWithID(path, id string) string {
+	p.RLock()
+	defer p.RUnlock()
+
+	// check existence
+	extraService := p.extraService[path]
+	if extraService == nil {
+		return ""
+	}
+
+	if len(extraService.params) == 0 {
+		return ""
+	}
+
+	fullpath := string(path) + "/" + id
+	for k := range extraService.params {
+		if extraService.params[k].key == fullpath {
+			return extraService.params[k].value
+		}
+	}
+
+	return ""
+}
+
+func (p *servicePool) getExtraService(path string) (key, value string) {
+	p.RLock()
+	defer p.RUnlock()
+
+	// check existence
+	extraService := p.extraService[path]
+	if extraService == nil {
+		return "", ""
+	}
+
+	if len(extraService.params) == 0 {
+		return "", ""
+	}
+
+	// get a extra service in round-robin sytle
+	idx := int(atomic.AddUint32(&extraService.idx, 1)) % len(extraService.params)
+	return extraService.params[idx].key, extraService.params[idx].value
 }
 
 func (p *servicePool) getServiceWithID(path, id string) *grpc.ClientConn {
@@ -280,6 +358,19 @@ func (p *servicePool) registerCallback(path string, cb chan string) {
 		}
 	}
 	log.Info("register callback on:", path)
+}
+
+// GetExtraService is getting a service in round-robin style
+// ExtraService keep all service, beside grpc service
+func GetExtraService(path string) (string, string) {
+	key, value := defaultPool.getExtraService(path)
+	return key, value
+}
+
+// GetExtraServieWithID provide a specific key for a service
+// ExtraService keep all service, beside grpc service
+func GetExtraServieWithID(path, id string) string {
+	return defaultPool.getExtraServiceWithID(path, id)
 }
 
 // GetService is getting a service in round-robin style

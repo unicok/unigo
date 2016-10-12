@@ -55,8 +55,13 @@ func (s *server) init() {
 
 	// 连接db
 	mongodbURL := DefaultMongodbURL
-	if env := os.Getenv(EnvMongodb); env != "" {
-		mongodbURL = env
+	mkey, mval := sp.GetExtraService(sp.DefaultServicePath + "/mongo")
+	if mkey == "" || mval == "" {
+		if env := os.Getenv(EnvMongodb); env != "" {
+			mongodbURL = env
+		}
+	} else {
+		mongodbURL = "mongodb://" + mval
 	}
 
 	var err error
