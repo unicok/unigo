@@ -7,5 +7,5 @@ func startup() {
 	go signalHandler()
 
 	// init services discovery
-	sp.Init("game", "snowflake")
+	sp.Init("game", "auth", "snowflake")
 }
