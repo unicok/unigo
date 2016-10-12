@@ -21,7 +21,7 @@ func PKT_auto_id(reader *packet.Packet) (tbl S_auto_id, err error) {
 
 type S_error_info struct {
 	F_code int32
-	F_msg string
+	F_msg  string
 }
 
 func (p S_error_info) Pack(w *packet.Packet) {
@@ -39,21 +39,25 @@ func PKT_error_info(reader *packet.Packet) (tbl S_error_info, err error) {
 }
 
 type S_user_login_info struct {
-	F_login_way int32
-	F_open_udid string
+	F_login_way          int32
+	F_user_name          string
+	F_password_md5       string
+	F_open_udid          string
 	F_client_certificate string
-	F_client_version int32
-	F_user_lang string
-	F_app_id string
-	F_os_version string
-	F_device_name string
-	F_device_id string
-	F_device_id_type int32
-	F_login_ip string
+	F_client_version     int32
+	F_user_lang          string
+	F_app_id             string
+	F_os_version         string
+	F_device_name        string
+	F_device_id          string
+	F_device_id_type     int32
+	F_login_ip           string
 }
 
 func (p S_user_login_info) Pack(w *packet.Packet) {
 	w.WriteS32(p.F_login_way)
+	w.WriteString(p.F_user_name)
+	w.WriteString(p.F_password_md5)
 	w.WriteString(p.F_open_udid)
 	w.WriteString(p.F_client_certificate)
 	w.WriteS32(p.F_client_version)
@@ -68,6 +72,10 @@ func (p S_user_login_info) Pack(w *packet.Packet) {
 
 func PKT_user_login_info(reader *packet.Packet) (tbl S_user_login_info, err error) {
 	tbl.F_login_way, err = reader.ReadS32()
+	checkErr(err)
+	tbl.F_user_name, err = reader.ReadString()
+	checkErr(err)
+	tbl.F_password_md5, err = reader.ReadString()
 	checkErr(err)
 	tbl.F_open_udid, err = reader.ReadString()
 	checkErr(err)
@@ -94,7 +102,7 @@ func PKT_user_login_info(reader *packet.Packet) (tbl S_user_login_info, err erro
 }
 
 type S_seed_info struct {
-	F_client_send_seed int32
+	F_client_send_seed    int32
 	F_client_receive_seed int32
 }
 

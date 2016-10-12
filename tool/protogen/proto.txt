@@ -12,6 +12,8 @@ msg string
 #用户登陆发包 1代表使用uuid登陆 2代表使用客户端证书登陆
 user_login_info=
 login_way integer
+user_name string
+password_md5 string
 open_udid string
 client_certificate string
 client_version integer

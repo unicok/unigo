@@ -54,6 +54,8 @@ namespace NetProto.Proto
     public class user_login_info : NetBase
     {
         public Int32 login_way;
+        public string user_name;
+        public string password_md5;
         public string open_udid;
         public string client_certificate;
         public Int32 client_version;
@@ -68,6 +70,8 @@ namespace NetProto.Proto
         public override void Pack(ByteArray w)
         {
             w.WriteInt32(this.login_way);
+            w.WriteUTF(this.user_name);
+            w.WriteUTF(this.password_md5);
             w.WriteUTF(this.open_udid);
             w.WriteUTF(this.client_certificate);
             w.WriteInt32(this.client_version);
@@ -84,6 +88,8 @@ namespace NetProto.Proto
         {
             user_login_info tbl = new user_login_info();
             tbl.login_way = reader.ReadInt32();
+            tbl.user_name = reader.ReadUTFBytes();
+            tbl.password_md5 = reader.ReadUTFBytes();
             tbl.open_udid = reader.ReadUTFBytes();
             tbl.client_certificate = reader.ReadUTFBytes();
             tbl.client_version = reader.ReadInt32();

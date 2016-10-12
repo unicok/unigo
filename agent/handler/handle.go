@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"common/models"
 	"crypto/rc4"
 	"fmt"
 	"io"
@@ -8,10 +9,13 @@ import (
 	"lib/packet"
 	"math/big"
 
+	"gopkg.in/vmihailenco/msgpack.v2"
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/metadata"
 
 	. "agent/types"
+	"lib/proto/auth"
 	pb "lib/proto/game"
 	sp "lib/services"
 
@@ -64,28 +68,57 @@ func P_get_seed_req(sess *Session, reader *packet.Packet) []byte {
 
 // 玩家登陆过程
 func P_user_login_req(sess *Session, reader *packet.Packet) []byte {
+	tbl, _ := PKT_user_login_info(reader)
+
+	var acc = models.Account{
+		UserName:   tbl.F_user_name,
+		Password:   tbl.F_password_md5,
+		OpenUUID:   tbl.F_open_udid,
+		Lang:       tbl.F_user_lang,
+		DeviceName: tbl.F_device_name,
+		DeviceId:   tbl.F_device_id,
+		DeviceType: tbl.F_device_id_type,
+	}
+
 	// TODO: 登陆鉴权
 	// 简单鉴权可以在agent直接完成，通常公司都存在一个用户中心服务器用于鉴权
-	sess.UserID = 1
+	authConn, serviceID := sp.GetService(sp.DefaultServicePath + "/auth")
+	if authConn == nil {
+		log.Error("cannot get auth service:", serviceID)
+		return nil
+	}
+	authCli := auth.NewAuthServiceClient(authConn)
+	proof, err := msgpack.Marshal(&acc)
+	if err != nil {
+		log.Errorf("msgpack marshal err:%v", err)
+		return nil
+	}
+
+	authRes, err := authCli.Auth(context.Background(), &auth.Auth_Certificate{Type: 2, Proof: proof})
+	if err != nil {
+		log.Error(err)
+		return nil
+	}
+	sess.UserID = authRes.UserId
 
 	// TODO: 选择GAME服务器
 	// 选服策略依据业务进行，比如小服可以固定选取某台，大服可以采用HASH或一致性HASH
 	sess.GSID = DefaultGSID
 
 	// 连接到已选定GAME服务器
-	conn := sp.GetServieWithID(sp.DefaultServicePath+"/game", sess.GSID)
-	if conn == nil {
+	gsConn := sp.GetServieWithID(sp.DefaultServicePath+"/game", sess.GSID)
+	if gsConn == nil {
 		log.Error("cannot get game service:", sess.GSID)
 		return nil
 	}
-	cli := pb.NewGameServiceClient(conn)
+	gsCli := pb.NewGameServiceClient(gsConn)
 
 	// 开启到游戏服的流
 	md := metadata.New(map[string]string{
 		"userid": fmt.Sprint(sess.UserID),
 	})
 	ctx := metadata.NewContext(context.Background(), md)
-	stream, err := cli.Stream(ctx)
+	stream, err := gsCli.Stream(ctx)
 	if err != nil {
 		log.Error(err)
 		return nil
