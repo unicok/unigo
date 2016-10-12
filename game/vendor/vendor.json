@@ -87,6 +87,12 @@
 			"revisionTime": "2016-09-29T23:53:44Z"
 		},
 		{
+			"checksumSHA1": "Xz3hUrPvOYGWTuHrEryoYAj9zwg=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "9bb9f0998d48b31547d975974935ae9b48c7a03c",
+			"revisionTime": "2016-10-11T23:07:22Z"
+		},
+		{
 			"checksumSHA1": "IsRfp3Vn43+q7GXxU11cRkZrLMM=",
 			"path": "google.golang.org/grpc",
 			"revision": "c2983be903f6966c83c6ea86ba74df0b7cc882cd",
@@ -161,7 +167,7 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "aC/1ZBz38bLf/ozStQyucB22Y54=",
+			"checksumSHA1": "iAz95scId21+A7Jj9rVrpodCklI=",
 			"path": "lib/services",
 			"revision": ""
 		},
