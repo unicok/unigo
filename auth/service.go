@@ -70,9 +70,14 @@ func (s *server) init() {
 		log.Panicf("mongodb: cannot connect to %v, err: %v", mongodbURL, err)
 		os.Exit(-1)
 	}
+
+	log.Info("connected mongodb:", mongodbURL)
 }
 
 func (s *server) Auth(ctx context.Context, cert *auth.Auth_Certificate) (*auth.Auth_Result, error) {
+
+	log.Debug("auth request, type:", cert.Type)
+
 	switch cert.Type {
 	case auth.Auth_UUID:
 		if uuidRegexp.MatchString(strings.ToLower(string(cert.Proof))) {
@@ -89,6 +94,7 @@ func (s *server) Auth(ctx context.Context, cert *auth.Auth_Certificate) (*auth.A
 		// 用户名密码验证
 		acc, err := authOrReg(&p)
 		if err != nil {
+			log.Error("auth plain error:", err)
 			return AuthFailResult, nil
 		}
 
