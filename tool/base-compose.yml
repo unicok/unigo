@@ -1,0 +1,59 @@
+version: '2'
+
+services:
+    mongodb:
+        image: mongo:latest
+        privileged: false
+        restart: always
+        ports: 
+        - 27017
+        volumes:
+        - ./volumes/db/mongo:/data/db
+    mongo-express:
+        image: library/mongo-express:latest
+        privileged: false
+        restart: always
+        links:
+        - mongodb:mongo
+        ports:
+        - 8081:8081
+    etcd:
+        image: microbox/etcd
+        command: -name=etcd01 -cors=*
+        privileged: false
+        restart: always
+        ports:
+        - 7001:7001
+        - 4001:4001
+        volumes:
+        - ./volumes/etcd:/data
+    etcd-browser:
+        image: buddho/etcd-browser
+        privileged: false
+        restart: always
+        ports:
+        - 8084:8000
+        environment:
+        - AUTH_USER=admin
+        - AUTH_PASS=admin
+        - ETCD_PORT=4001
+        - ETCD_HOST=10.8.0.1
+    registrator:
+        image: gliderlabs/registrator
+        command: etcd://localhost:4001/backends
+        network_mode: host
+        privileged: false
+        restart: always
+        volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
+    kamon-grafana-dashboard:
+        image: kamon/grafana_graphite:latest
+        privileged: false
+        restart: always
+        ports:
+        - 8082:80
+        - 8125:8125/udp
+        - 8126:8126
+        - 8083:81
+
+
