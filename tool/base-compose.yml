@@ -1,6 +1,32 @@
 version: '2'
 
 services:
+    consul:
+        image: index.docker.io/progrium/consul:latest
+        command: -server -bootstrap -advertise 120.26.104.246 -ui-dir /ui
+        hostname: consul
+        privileged: false
+        restart: always
+        ports:
+        - 8500:8500
+        - 53:53/udp
+        environment:
+        - SERVICE_8300_IGNORE=yes
+        - SERVICE_8301_IGNORE=yes
+        - SERVICE_8302_IGNORE=yes
+        - SERVICE_8400_IGNORE=yes
+        - SERVICE_53_NAME=consul-dns
+        - SERVICE_8500_NAME=consul-admin_infra
+    registrator:
+        image: gliderlabs/registrator
+        command: -internal consul://consul:8500
+        hostname: registrator
+        privileged: false
+        restart: always
+        links:
+        - consul
+        volumes:
+        - /var/run/docker.sock:/tmp/docker.sock
     mongodb:
         image: mongo:latest
         privileged: false
@@ -17,35 +43,6 @@ services:
         - mongodb:mongo
         ports:
         - 8081:8081
-    etcd:
-        image: microbox/etcd
-        command: -name=etcd01 -cors=*
-        privileged: false
-        restart: always
-        ports:
-        - 7001:7001
-        - 4001:4001
-        volumes:
-        - ./volumes/etcd:/data
-    etcd-browser:
-        image: buddho/etcd-browser
-        privileged: false
-        restart: always
-        ports:
-        - 8084:8000
-        environment:
-        - AUTH_USER=admin
-        - AUTH_PASS=admin
-        - ETCD_PORT=4001
-        - ETCD_HOST=10.8.0.1
-    registrator:
-        image: gliderlabs/registrator
-        command: etcd://localhost:4001/backends
-        network_mode: host
-        privileged: false
-        restart: always
-        volumes:
-        - /var/run/docker.sock:/tmp/docker.sock
     kamon-grafana-dashboard:
         image: kamon/grafana_graphite:latest
         privileged: false
@@ -55,5 +52,9 @@ services:
         - 8125:8125/udp
         - 8126:8126
         - 8083:81
-
+        environment:
+        - SERVICE_8126_IGNORE=yes
+        - SERVICE_81_IGNORE=yes
+        - SERVICE_80_NAME=grafana-dashboard
+        - SERVICE_8125_NAME=statd
 
