@@ -1,13 +1,13 @@
 package services
 
 import (
-	"lib/services/dns"
 	"strings"
 	"sync"
 	"sync/atomic"
 
 	log "github.com/Sirupsen/logrus"
 	"google.golang.org/grpc"
+	"lib/services/dns"
 )
 
 // client is a single connection

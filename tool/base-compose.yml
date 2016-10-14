@@ -2,7 +2,7 @@ version: '2'
 
 services:
     consul:
-        image: index.docker.io/progrium/consul:latest
+        image: progrium/consul:latest
         command: -server -bootstrap -advertise 120.26.104.246 -ui-dir /ui
         hostname: consul
         privileged: false
@@ -36,7 +36,7 @@ services:
         volumes:
         - ./volumes/db/mongo:/data/db
     mongo-express:
-        image: library/mongo-express:latest
+        image: mongo-express:latest
         privileged: false
         restart: always
         links:

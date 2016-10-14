@@ -7,15 +7,14 @@ import (
 	"regexp"
 	"strings"
 
-	"gopkg.in/vmihailenco/msgpack.v2"
-
 	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
+	msgpack "gopkg.in/vmihailenco/msgpack.v2"
 
 	db "lib/db/mongodb"
 	"lib/proto/auth"
 	"lib/proto/snowflake"
-	sp "lib/services"
+	"lib/services"
 	"lib/utils"
 )
 
@@ -45,7 +44,7 @@ type server struct {
 
 func (s *server) init() {
 	// 连接snowflake
-	conn, _ := sp.GetService("snowflake")
+	conn, _ := services.GetService("snowflake")
 	if conn == nil {
 		log.Panic("cannot get snowflake service")
 		os.Exit(-1)
@@ -58,7 +57,7 @@ func (s *server) init() {
 		mongodbURL = env
 	}
 	if mongodbURL == "" {
-		addrs, err := sp.SearchService("mongo")
+		addrs, err := services.SearchService("mongo")
 		if err != nil {
 			log.Panic("failed to resolve mongo host, ", err)
 			os.Exit(-1)
