@@ -9,7 +9,7 @@ import (
 
 	_ "lib/logger"
 	pb "lib/proto/auth"
-	sp "lib/services"
+	// sp "lib/services"
 	_ "lib/statsd-pprof"
 )
 
@@ -25,7 +25,7 @@ func main() {
 	}
 	log.Info("listening on:", lis.Addr())
 
-	sp.Init("snowflake")
+	// sp.Init("snowflake")
 
 	// 注册服务
 	s := grpc.NewServer()

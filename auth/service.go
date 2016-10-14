@@ -20,10 +20,9 @@ import (
 )
 
 const (
-	SERVICE           = "[AUTH]"
-	DefaultMongodbURL = "mongodb://172.17.0.1/account"
-	EnvMongodb        = "MONGODB_URL"
-	DBAccount         = "account"
+	SERVICE    = "[AUTH]"
+	EnvMongodb = "MONGODB_URL"
+	DBAccount  = "account"
 )
 
 var (
@@ -46,7 +45,7 @@ type server struct {
 
 func (s *server) init() {
 	// 连接snowflake
-	conn, _ := sp.GetService(sp.DefaultServicePath + "/snowflake")
+	conn, _ := sp.GetService("snowflake")
 	if conn == nil {
 		log.Panic("cannot get snowflake service")
 		os.Exit(-1)
@@ -54,14 +53,23 @@ func (s *server) init() {
 	sfCli = snowflake.NewSnowflakeServiceClient(conn)
 
 	// 连接db
-	mongodbURL := DefaultMongodbURL
-	mkey, mval := sp.GetExtraService(sp.DefaultServicePath + "/mongo")
-	if mkey == "" || mval == "" {
-		if env := os.Getenv(EnvMongodb); env != "" {
-			mongodbURL = env
+	var mongodbURL string
+	if env := os.Getenv(EnvMongodb); env != "" {
+		mongodbURL = env
+	}
+	if mongodbURL == "" {
+		addrs, err := sp.SearchService("mongo")
+		if err != nil {
+			log.Panic("failed to resolve mongo host, ", err)
+			os.Exit(-1)
 		}
-	} else {
-		mongodbURL = "mongodb://" + mval
+
+		if len(addrs) == 0 {
+			log.Panic("not found mongo host")
+			os.Exit(-1)
+		}
+
+		mongodbURL = "mongodb://" + addrs[0]
 	}
 
 	var err error
