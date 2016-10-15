@@ -7,7 +7,10 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"google.golang.org/grpc"
-	"lib/services/dns"
+)
+
+const (
+	DefaultDnsDomain = ".service.consul"
 )
 
 // client is a single connection
@@ -123,7 +126,7 @@ func (p *servicePool) addServices(serviceName string) {
 		return
 	}
 
-	addrs, err := dns.LookupHP(serviceName)
+	addrs, err := LookupHP(serviceName + DefaultDnsDomain)
 	if err != nil {
 		log.Errorf("failed to resolve service host: %v, %v", serviceName, err)
 		return
@@ -250,5 +253,5 @@ func GetService(srvName string) (*grpc.ClientConn, string) {
 }
 
 func SearchService(srvName string) ([]string, error) {
-	return dns.LookupHP(srvName)
+	return LookupHP(srvName + DefaultDnsDomain)
 }

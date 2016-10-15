@@ -3,7 +3,7 @@
 // DO NOT EDIT!
 
 /*
-Package proto is a generated protocol buffer package.
+Package snowflake is a generated protocol buffer package.
 
 It is generated from these files:
 	snowflake.proto
@@ -11,9 +11,9 @@ It is generated from these files:
 It has these top-level messages:
 	Snowflake
 */
-package proto
+package snowflake
 
-import proto1 "github.com/golang/protobuf/proto"
+import proto "github.com/golang/protobuf/proto"
 import fmt "fmt"
 import math "math"
 
@@ -23,7 +23,7 @@ import (
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto1.Marshal
+var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
 
@@ -31,13 +31,13 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto1.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Snowflake struct {
 }
 
 func (m *Snowflake) Reset()                    { *m = Snowflake{} }
-func (m *Snowflake) String() string            { return proto1.CompactTextString(m) }
+func (m *Snowflake) String() string            { return proto.CompactTextString(m) }
 func (*Snowflake) ProtoMessage()               {}
 func (*Snowflake) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0} }
 
@@ -46,7 +46,7 @@ type Snowflake_Key struct {
 }
 
 func (m *Snowflake_Key) Reset()                    { *m = Snowflake_Key{} }
-func (m *Snowflake_Key) String() string            { return proto1.CompactTextString(m) }
+func (m *Snowflake_Key) String() string            { return proto.CompactTextString(m) }
 func (*Snowflake_Key) ProtoMessage()               {}
 func (*Snowflake_Key) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 0} }
 
@@ -55,7 +55,7 @@ type Snowflake_Value struct {
 }
 
 func (m *Snowflake_Value) Reset()                    { *m = Snowflake_Value{} }
-func (m *Snowflake_Value) String() string            { return proto1.CompactTextString(m) }
+func (m *Snowflake_Value) String() string            { return proto.CompactTextString(m) }
 func (*Snowflake_Value) ProtoMessage()               {}
 func (*Snowflake_Value) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 1} }
 
@@ -63,7 +63,7 @@ type Snowflake_NullRequest struct {
 }
 
 func (m *Snowflake_NullRequest) Reset()                    { *m = Snowflake_NullRequest{} }
-func (m *Snowflake_NullRequest) String() string            { return proto1.CompactTextString(m) }
+func (m *Snowflake_NullRequest) String() string            { return proto.CompactTextString(m) }
 func (*Snowflake_NullRequest) ProtoMessage()               {}
 func (*Snowflake_NullRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 2} }
 
@@ -72,16 +72,16 @@ type Snowflake_UUID struct {
 }
 
 func (m *Snowflake_UUID) Reset()                    { *m = Snowflake_UUID{} }
-func (m *Snowflake_UUID) String() string            { return proto1.CompactTextString(m) }
+func (m *Snowflake_UUID) String() string            { return proto.CompactTextString(m) }
 func (*Snowflake_UUID) ProtoMessage()               {}
 func (*Snowflake_UUID) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{0, 3} }
 
 func init() {
-	proto1.RegisterType((*Snowflake)(nil), "proto.Snowflake")
-	proto1.RegisterType((*Snowflake_Key)(nil), "proto.Snowflake.Key")
-	proto1.RegisterType((*Snowflake_Value)(nil), "proto.Snowflake.Value")
-	proto1.RegisterType((*Snowflake_NullRequest)(nil), "proto.Snowflake.NullRequest")
-	proto1.RegisterType((*Snowflake_UUID)(nil), "proto.Snowflake.UUID")
+	proto.RegisterType((*Snowflake)(nil), "snowflake.Snowflake")
+	proto.RegisterType((*Snowflake_Key)(nil), "snowflake.Snowflake.Key")
+	proto.RegisterType((*Snowflake_Value)(nil), "snowflake.Snowflake.Value")
+	proto.RegisterType((*Snowflake_NullRequest)(nil), "snowflake.Snowflake.NullRequest")
+	proto.RegisterType((*Snowflake_UUID)(nil), "snowflake.Snowflake.UUID")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -109,7 +109,7 @@ func NewSnowflakeServiceClient(cc *grpc.ClientConn) SnowflakeServiceClient {
 
 func (c *snowflakeServiceClient) Next(ctx context.Context, in *Snowflake_Key, opts ...grpc.CallOption) (*Snowflake_Value, error) {
 	out := new(Snowflake_Value)
-	err := grpc.Invoke(ctx, "/proto.SnowflakeService/Next", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/snowflake.SnowflakeService/Next", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (c *snowflakeServiceClient) Next(ctx context.Context, in *Snowflake_Key, op
 
 func (c *snowflakeServiceClient) GetUUID(ctx context.Context, in *Snowflake_NullRequest, opts ...grpc.CallOption) (*Snowflake_UUID, error) {
 	out := new(Snowflake_UUID)
-	err := grpc.Invoke(ctx, "/proto.SnowflakeService/GetUUID", in, out, c.cc, opts...)
+	err := grpc.Invoke(ctx, "/snowflake.SnowflakeService/GetUUID", in, out, c.cc, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -146,7 +146,7 @@ func _SnowflakeService_Next_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.SnowflakeService/Next",
+		FullMethod: "/snowflake.SnowflakeService/Next",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SnowflakeServiceServer).Next(ctx, req.(*Snowflake_Key))
@@ -164,7 +164,7 @@ func _SnowflakeService_GetUUID_Handler(srv interface{}, ctx context.Context, dec
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.SnowflakeService/GetUUID",
+		FullMethod: "/snowflake.SnowflakeService/GetUUID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(SnowflakeServiceServer).GetUUID(ctx, req.(*Snowflake_NullRequest))
@@ -173,7 +173,7 @@ func _SnowflakeService_GetUUID_Handler(srv interface{}, ctx context.Context, dec
 }
 
 var _SnowflakeService_serviceDesc = grpc.ServiceDesc{
-	ServiceName: "proto.SnowflakeService",
+	ServiceName: "snowflake.SnowflakeService",
 	HandlerType: (*SnowflakeServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -189,21 +189,21 @@ var _SnowflakeService_serviceDesc = grpc.ServiceDesc{
 	Metadata: fileDescriptor0,
 }
 
-func init() { proto1.RegisterFile("snowflake.proto", fileDescriptor0) }
+func init() { proto.RegisterFile("snowflake.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 194 bytes of a gzipped FileDescriptorProto
+	// 196 bytes of a gzipped FileDescriptorProto
 	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x09, 0x6e, 0x88, 0x02, 0xff, 0xe2, 0xe2, 0x2f, 0xce, 0xcb, 0x2f,
-	0x4f, 0xcb, 0x49, 0xcc, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0x62, 0x05, 0x53, 0x4a,
-	0x05, 0x5c, 0x9c, 0xc1, 0x30, 0x19, 0x29, 0x49, 0x2e, 0x66, 0xef, 0xd4, 0x4a, 0x21, 0x21, 0x2e,
-	0x96, 0xbc, 0xc4, 0xdc, 0x54, 0x09, 0x46, 0x05, 0x46, 0x0d, 0xce, 0x20, 0x30, 0x5b, 0x4a, 0x96,
-	0x8b, 0x35, 0x2c, 0x31, 0xa7, 0x34, 0x55, 0x48, 0x84, 0x8b, 0xb5, 0x0c, 0xc4, 0x00, 0xcb, 0x32,
-	0x07, 0x41, 0x38, 0x52, 0xbc, 0x5c, 0xdc, 0x7e, 0xa5, 0x39, 0x39, 0x41, 0xa9, 0x85, 0xa5, 0xa9,
-	0xc5, 0x25, 0x52, 0x52, 0x5c, 0x2c, 0xa1, 0xa1, 0x9e, 0x2e, 0x20, 0x93, 0x4a, 0x4b, 0x33, 0x53,
-	0xc0, 0x6a, 0x59, 0x82, 0xc0, 0x6c, 0xa3, 0x0e, 0x46, 0x2e, 0x01, 0xb8, 0x95, 0xc1, 0xa9, 0x45,
-	0x65, 0x99, 0xc9, 0xa9, 0x42, 0x26, 0x5c, 0x2c, 0x7e, 0xa9, 0x15, 0x25, 0x42, 0x22, 0x10, 0xd7,
-	0xe9, 0xc1, 0x15, 0xe8, 0x01, 0x1d, 0x24, 0x25, 0x86, 0x21, 0x0a, 0x71, 0x8b, 0x1d, 0x17, 0xbb,
-	0x7b, 0x6a, 0x09, 0xd8, 0x26, 0x19, 0x0c, 0x25, 0xc8, 0xee, 0x11, 0xc5, 0x90, 0x05, 0x69, 0x4a,
-	0x62, 0x03, 0x8b, 0x1a, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0xa3, 0xd1, 0xbf, 0x14, 0x1d, 0x01,
-	0x00, 0x00,
+	0x4f, 0xcb, 0x49, 0xcc, 0x4e, 0xd5, 0x2b, 0x28, 0xca, 0x2f, 0xc9, 0x17, 0xe2, 0x84, 0x0b, 0x28,
+	0x15, 0x70, 0x71, 0x06, 0xc3, 0x38, 0x52, 0x92, 0x5c, 0xcc, 0xde, 0xa9, 0x95, 0x42, 0x42, 0x5c,
+	0x2c, 0x79, 0x89, 0xb9, 0xa9, 0x12, 0x8c, 0x0a, 0x8c, 0x1a, 0x9c, 0x41, 0x60, 0xb6, 0x94, 0x2c,
+	0x17, 0x6b, 0x58, 0x62, 0x4e, 0x69, 0xaa, 0x90, 0x08, 0x17, 0x6b, 0x19, 0x88, 0x01, 0x96, 0x65,
+	0x0e, 0x82, 0x70, 0xa4, 0x78, 0xb9, 0xb8, 0xfd, 0x4a, 0x73, 0x72, 0x82, 0x52, 0x0b, 0x4b, 0x53,
+	0x8b, 0x4b, 0xa4, 0xa4, 0xb8, 0x58, 0x42, 0x43, 0x3d, 0x5d, 0x40, 0x26, 0x95, 0x96, 0x66, 0xa6,
+	0x80, 0xd5, 0xb2, 0x04, 0x81, 0xd9, 0x46, 0x33, 0x18, 0xb9, 0x04, 0xe0, 0x56, 0x06, 0xa7, 0x16,
+	0x95, 0x65, 0x26, 0xa7, 0x0a, 0xd9, 0x70, 0xb1, 0xf8, 0xa5, 0x56, 0x94, 0x08, 0x49, 0xe8, 0x21,
+	0xdc, 0x0a, 0x57, 0xa4, 0xe7, 0x9d, 0x5a, 0x29, 0x25, 0x85, 0x55, 0x06, 0xe2, 0x26, 0x37, 0x2e,
+	0x76, 0xf7, 0xd4, 0x12, 0xb0, 0x8d, 0x0a, 0x58, 0x95, 0x21, 0xbb, 0x4d, 0x12, 0xab, 0x0a, 0x90,
+	0xe6, 0x24, 0x36, 0x70, 0xf0, 0x18, 0x03, 0x02, 0x00, 0x00, 0xff, 0xff, 0x32, 0x98, 0x60, 0x62,
+	0x31, 0x01, 0x00, 0x00,
 }
