@@ -8,13 +8,12 @@ import (
 	"strconv"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
-	log "github.com/Sirupsen/logrus"
-	etcd "github.com/coreos/etcd/client"
-
-	"lib/etcdclient"
 	pb "lib/proto/snowflake"
+	sp "lib/services"
+	"lib/utils"
 )
 
 const (
@@ -23,7 +22,7 @@ const (
 	path         = "/seqs/"
 	uuidKey      = "/seqs/snowflake-uuid"
 	backoff      = 100  // max backoff delay millisecond
-	concurrent   = 128  // max concurrent connections to etcd
+	concurrent   = 128  // max concurrent connections
 	uuidQueue    = 1024 // uuid process queue
 )
 
@@ -35,17 +34,17 @@ const (
 
 type server struct {
 	machineID  uint64 // 10-bit machine append
-	clientPool chan etcd.KeysAPI
+	clientPool chan *sp.ConsulKV
 	procCh     chan chan uint64
 }
 
 func (p *server) init() {
-	p.clientPool = make(chan etcd.KeysAPI, concurrent)
+	p.clientPool = make(chan *sp.ConsulKV, concurrent)
 	p.procCh = make(chan chan uint64, uuidQueue)
 
 	// init client pool
 	for i := 0; i < concurrent; i++ {
-		p.clientPool <- etcdclient.KeysAPI()
+		p.clientPool <- sp.NewDefaultKVAPI()
 	}
 
 	// check if user specified machine id is set
@@ -71,22 +70,23 @@ func (p *server) initMachineID() {
 
 	for {
 		// get the key
-		resp, err := client.Get(context.Background(), uuidKey, nil)
+		kvpair, _, err := client.GetKVPair(uuidKey, nil)
 		if err != nil {
 			log.Panic(err)
 			os.Exit(-1)
 		}
 
 		// get preValue & preIndex
-		prevValue, err := strconv.Atoi(resp.Node.Value)
+		prevValue, err := strconv.Atoi(utils.Bytes2Str(kvpair.Value))
 		if err != nil {
 			log.Panic(err)
 			os.Exit(-1)
 		}
-		prevIndex := resp.Node.ModifiedIndex
+		prevIndex := kvpair.ModifyIndex
 
 		// compareAndSwap
-		resp, err = client.Set(context.Background(), uuidKey, fmt.Sprint(prevValue+1), &etcd.SetOptions{PrevIndex: prevIndex})
+
+		_, _, err = client.CAS(uuidKey, fmt.Sprint(prevValue+1), prevIndex, nil)
 		if err != nil {
 			casDelay()
 			continue
@@ -105,22 +105,22 @@ func (p *server) Next(ctx context.Context, in *pb.Snowflake_Key) (*pb.Snowflake_
 	key := path + in.Name
 	for {
 		// get the key
-		resp, err := client.Get(context.Background(), key, nil)
+		kvpair, _, err := client.GetKVPair(key, nil)
 		if err != nil {
 			log.Error(err)
 			return nil, errors.New("Key not exists, need to create first")
 		}
 
 		// get prevValue & prevIndex
-		prevValue, err := strconv.Atoi(resp.Node.Value)
+		prevValue, err := strconv.Atoi(utils.Bytes2Str(kvpair.Value))
 		if err != nil {
 			log.Error(err)
 			return nil, errors.New("marlformed value")
 		}
-		prevIndex := resp.Node.ModifiedIndex
+		prevIndex := kvpair.ModifyIndex
 
 		// compareAndSwap
-		resp, err = client.Set(context.Background(), key, fmt.Sprint(prevValue+1), &etcd.SetOptions{PrevIndex: prevIndex})
+		_, _, err = client.CAS(key, fmt.Sprint(prevValue+1), prevIndex, nil)
 		if err != nil {
 			casDelay()
 			continue
