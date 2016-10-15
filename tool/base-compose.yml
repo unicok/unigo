@@ -1,10 +1,27 @@
 version: '2'
 
 services:
+    # consul_server:
+    #     image: gliderlabs/consul-server
+    #     command: -bootstrap -ui-dir /ui
+    #     hostname: consul-server
+    #     ports:
+    #     - 8500:8500
+    #     - 53:53/udp
+
+    # registrator:
+    #     image: gliderlabs/registrator:latest
+    #     command: --internal consul://consul_server:8500
+    #     hostname: registrator
+    #     volumes:
+    #     - /var/run/docker.sock:/tmp/docker.sock
+    #     depends_on:
+    #     - consul_server
     consul:
         image: progrium/consul:latest
-        command: -server -bootstrap -advertise 120.26.104.246 -ui-dir /ui
+        command: -server -bootstrap -ui-dir /ui
         hostname: consul
+        # network_mode : host
         privileged: false
         restart: always
         ports:
@@ -17,32 +34,39 @@ services:
         - SERVICE_8400_IGNORE=yes
         - SERVICE_53_NAME=consul-dns
         - SERVICE_8500_NAME=consul-admin_infra
+
     registrator:
         image: gliderlabs/registrator
-        command: -internal consul://consul:8500
+        command: -internal consul://localhost:8500
         hostname: registrator
+        network_mode : host
         privileged: false
         restart: always
-        links:
+        depends_on:
         - consul
         volumes:
         - /var/run/docker.sock:/tmp/docker.sock
+
     mongodb:
         image: mongo:latest
+        hostname: mongo
         privileged: false
         restart: always
         ports: 
         - 27017
         volumes:
         - ./volumes/db/mongo:/data/db
+
     mongo-express:
         image: mongo-express:latest
+        hostname: mongo-express
         privileged: false
         restart: always
         links:
         - mongodb:mongo
         ports:
         - 8081:8081
+
     kamon-grafana-dashboard:
         image: kamon/grafana_graphite:latest
         privileged: false
@@ -58,3 +82,6 @@ services:
         - SERVICE_80_NAME=grafana-dashboard
         - SERVICE_8125_NAME=statd
 
+networks:
+    default:
+        driver: bridge

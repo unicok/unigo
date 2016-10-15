@@ -44,12 +44,12 @@ type server struct {
 
 func (s *server) init() {
 	// 连接snowflake
-	conn, _ := services.GetService("snowflake")
-	if conn == nil {
-		log.Panic("cannot get snowflake service")
-		os.Exit(-1)
-	}
-	sfCli = snowflake.NewSnowflakeServiceClient(conn)
+	// conn, _ := services.GetService("snowflake")
+	// if conn == nil {
+	// 	log.Panic("cannot get snowflake service")
+	// 	os.Exit(-1)
+	// }
+	// sfCli = snowflake.NewSnowflakeServiceClient(conn)
 
 	// 连接db
 	var mongodbURL string
@@ -68,7 +68,11 @@ func (s *server) init() {
 			os.Exit(-1)
 		}
 
-		mongodbURL = "mongodb://" + addrs[0]
+		for _, addr := range addrs {
+			log.Info(addr)
+		}
+
+		mongodbURL = strings.Join(addrs, ",")
 	}
 
 	var err error
