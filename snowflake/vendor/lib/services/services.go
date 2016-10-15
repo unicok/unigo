@@ -43,6 +43,27 @@ func init() {
 		consulAPIPort = p
 	}
 
+	if consulHost == DefaultConsulHost || consulAPIPort == DefaultAPIPort {
+		addrs, err := LookupHP(DefaultConsulDomain)
+		if err != nil {
+			log.Errorf("failed to resolve consul host: %v, %v", DefaultConsulDomain, err)
+			return
+		}
+
+		if len(addrs) > 0 {
+			addr := strings.Split(addrs[0], ":")
+			if consulHost == DefaultConsulHost {
+				consulHost = addr[0]
+			}
+			if consulAPIPort == DefaultAPIPort {
+				p, err := strconv.Atoi(addr[1])
+				if err == nil {
+					consulAPIPort = p
+				}
+			}
+		}
+	}
+
 	DefaultKVAPI = NewDefaultKVAPI()
 }
 
