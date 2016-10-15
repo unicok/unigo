@@ -1,32 +1,15 @@
-package dns
+package services
 
 import (
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/miekg/dns"
 )
 
-const (
-	EnvDns         = "DNS_ADDR"
-	DefaultDnsAddr = "172.17.42.1:53"
-)
-
-var (
-	dnsAddr string
-)
-
-func init() {
-	dnsAddr = DefaultDnsAddr
-	if env := os.Getenv(EnvDns); env != "" {
-		dnsAddr = env
-	}
-}
-
 // LookupHost query service address and port from dns server
 func LookupHP(srv string) ([]string, error) {
-	return lookupHP(srv, dnsAddr)
+	return lookupHP(srv, fmt.Sprintf("%s:%v", consulHost, consulDNSPort))
 }
 
 func lookupHP(srv, ds string) ([]string, error) {
@@ -41,13 +24,13 @@ func lookupHP(srv, ds string) ([]string, error) {
 	}
 
 	if r == nil || r.Rcode != dns.RcodeSuccess {
-		return nil, errors.New("failed dns query")
+		return nil, errors.New(fmt.Sprint("failed dns query ", ds))
 	}
 
 	var eps []string
 	for _, a := range r.Answer {
 		if b, ok := a.(*dns.SRV); ok {
-			m.SetQuestion(dns.Fqdn(b.Target), dns.TypeA)
+			m.SetQuestion(dns.Fqdn(srv), dns.TypeA)
 			r1, _, err := c.Exchange(m, ds)
 			if err != nil || r1 == nil {
 				continue

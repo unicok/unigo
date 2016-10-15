@@ -1,14 +1,50 @@
 package services
 
 import (
+	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
 
 	log "github.com/Sirupsen/logrus"
 	"google.golang.org/grpc"
-	"lib/services/dns"
 )
+
+var (
+	consulHost    string
+	consulDNSPort int
+	consulAPIPort int
+
+	DefaultKVAPI *ConsulKV
+)
+
+func init() {
+	consulHost = DefaultConsulHost
+	if env := os.Getenv(EnvConsulHost); env != "" {
+		consulHost = env
+	}
+
+	consulDNSPort = DefaultDNSPort
+	if env := os.Getenv(EnvConsulDNSPort); env != "" {
+		p, err := strconv.Atoi(env)
+		if err != nil {
+			log.Panic("consul dns port parse from env err:", err)
+		}
+		consulDNSPort = p
+	}
+
+	consulAPIPort = DefaultAPIPort
+	if env := os.Getenv(EnvConsulAPIPort); env != "" {
+		p, err := strconv.Atoi(env)
+		if err != nil {
+			log.Panic("consul api port parse from env err:", err)
+		}
+		consulAPIPort = p
+	}
+
+	DefaultKVAPI = NewDefaultKVAPI()
+}
 
 // client is a single connection
 type client struct {
@@ -123,7 +159,7 @@ func (p *servicePool) addServices(serviceName string) {
 		return
 	}
 
-	addrs, err := dns.LookupHP(serviceName)
+	addrs, err := LookupHP(serviceName + DefaultDnsDomain)
 	if err != nil {
 		log.Errorf("failed to resolve service host: %v, %v", serviceName, err)
 		return
@@ -250,5 +286,5 @@ func GetService(srvName string) (*grpc.ClientConn, string) {
 }
 
 func SearchService(srvName string) ([]string, error) {
-	return dns.LookupHP(srvName)
+	return LookupHP(srvName + DefaultDnsDomain)
 }
