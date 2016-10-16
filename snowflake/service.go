@@ -11,18 +11,17 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"golang.org/x/net/context"
 
+	kv "lib/kv"
 	pb "lib/proto/snowflake"
-	sp "lib/services"
 	"lib/utils"
 )
 
 const (
 	service      = "[SNOWFLAKE]"
 	envMachineID = "MACHINE_ID" // specific machine id
-	path         = "/seqs/"
-	uuidKey      = "/seqs/snowflake-uuid"
+	path         = "seqs/"
+	uuidKey      = "seqs/snowflake-uuid"
 	backoff      = 100  // max backoff delay millisecond
-	concurrent   = 128  // max concurrent connections
 	uuidQueue    = 1024 // uuid process queue
 )
 
@@ -33,19 +32,12 @@ const (
 )
 
 type server struct {
-	machineID  uint64 // 10-bit machine append
-	clientPool chan *sp.ConsulKV
-	procCh     chan chan uint64
+	machineID uint64 // 10-bit machine append
+	procCh    chan chan uint64
 }
 
 func (p *server) init() {
-	p.clientPool = make(chan *sp.ConsulKV, concurrent)
 	p.procCh = make(chan chan uint64, uuidQueue)
-
-	// init client pool
-	for i := 0; i < concurrent; i++ {
-		p.clientPool <- sp.NewDefaultKVAPI()
-	}
 
 	// check if user specified machine id is set
 	if env := os.Getenv(envMachineID); env != "" {
@@ -56,21 +48,19 @@ func (p *server) init() {
 		}
 
 		p.machineID = (uint64(id) & machineIDMask) << 12
-		log.Info("machine id specified:", id)
+		log.Info("machine id from env specified:", p.machineID)
 	} else {
 		p.initMachineID()
+		log.Info("machine id from kv specified:", p.machineID)
 	}
 
 	go p.uuidTask()
 }
 
 func (p *server) initMachineID() {
-	client := <-p.clientPool
-	defer func() { p.clientPool <- client }()
-
 	for {
 		// get the key
-		kvpair, _, err := client.GetKVPair(uuidKey, nil)
+		kvpair, _, err := kv.GetKVPair(uuidKey, nil)
 		if err != nil {
 			log.Panic(err)
 			os.Exit(-1)
@@ -85,8 +75,7 @@ func (p *server) initMachineID() {
 		prevIndex := kvpair.ModifyIndex
 
 		// compareAndSwap
-
-		_, _, err = client.CAS(uuidKey, fmt.Sprint(prevValue+1), prevIndex, nil)
+		_, _, err = kv.CAS(uuidKey, fmt.Sprint(prevValue+1), prevIndex, nil)
 		if err != nil {
 			casDelay()
 			continue
@@ -100,12 +89,10 @@ func (p *server) initMachineID() {
 
 // Next is get next value of a key, like auto-incrememt in mysql
 func (p *server) Next(ctx context.Context, in *pb.Snowflake_Key) (*pb.Snowflake_Value, error) {
-	client := <-p.clientPool
-	defer func() { p.clientPool <- client }()
 	key := path + in.Name
 	for {
 		// get the key
-		kvpair, _, err := client.GetKVPair(key, nil)
+		kvpair, _, err := kv.GetKVPair(key, nil)
 		if err != nil {
 			log.Error(err)
 			return nil, errors.New("Key not exists, need to create first")
@@ -120,7 +107,7 @@ func (p *server) Next(ctx context.Context, in *pb.Snowflake_Key) (*pb.Snowflake_
 		prevIndex := kvpair.ModifyIndex
 
 		// compareAndSwap
-		_, _, err = client.CAS(key, fmt.Sprint(prevValue+1), prevIndex, nil)
+		_, _, err = kv.CAS(key, fmt.Sprint(prevValue+1), prevIndex, nil)
 		if err != nil {
 			casDelay()
 			continue

@@ -6,6 +6,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	_ "lib/logger"
 	pb "lib/proto/snowflake"
 	_ "lib/statsd-pprof"
 

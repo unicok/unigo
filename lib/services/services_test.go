@@ -1,5 +1,7 @@
 package services
 
+import "testing"
+
 // func TestService(t *testing.T) {
 // 	Init()
 // 	spew.Dump(defaultPool)
@@ -15,3 +17,11 @@ package services
 // 		t.Log("get service with id successed")
 // 	}
 // }
+
+func TestGetServiceAddress(t *testing.T) {
+	addr, err := GetServiceAddress("consul.service.consul")
+	if err != nil {
+		t.Error(err)
+	}
+	t.Log(addr)
+}
