@@ -82,9 +82,9 @@ func P_user_login_req(sess *Session, reader *packet.Packet) []byte {
 
 	// TODO: 登陆鉴权
 	// 简单鉴权可以在agent直接完成，通常公司都存在一个用户中心服务器用于鉴权
-	authConn, serviceID := sp.GetService(sp.DefaultServicePath + "/auth")
+	authConn, addr := sp.GetService("auth.service.consul")
 	if authConn == nil {
-		log.Error("cannot get auth service:", serviceID)
+		log.Error("cannot get auth service:", addr)
 		return nil
 	}
 	authCli := auth.NewAuthServiceClient(authConn)
@@ -106,9 +106,9 @@ func P_user_login_req(sess *Session, reader *packet.Packet) []byte {
 	sess.GSID = DefaultGSID
 
 	// 连接到已选定GAME服务器
-	gsConn := sp.GetServieWithID(sp.DefaultServicePath+"/game", sess.GSID)
+	gsConn, addr := sp.GetService("game.service.consul")
 	if gsConn == nil {
-		log.Error("cannot get game service:", sess.GSID)
+		log.Error("cannot get game service:", addr)
 		return nil
 	}
 	gsCli := pb.NewGameServiceClient(gsConn)
