@@ -9,6 +9,36 @@
 			"revisionTime": "2016-08-29T20:23:21Z"
 		},
 		{
+			"checksumSHA1": "o/8n1rAmSort83d5j5lJoPhTwTo=",
+			"path": "github.com/benschw/dns-clb-go/clb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "f6hrcIaJNmw2z70S6OJtNgqANCE=",
+			"path": "github.com/benschw/dns-clb-go/dns",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "PZlH5die0nSMh6QMKeM2HAybcLk=",
+			"path": "github.com/benschw/dns-clb-go/randomclb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "jbN+nKrhH416G3+5hhvMKz1UY8A=",
+			"path": "github.com/benschw/dns-clb-go/roundrobinclb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "VZ6BXuE7NqaEE+l0ytaIPEvp5Cw=",
+			"path": "github.com/benschw/dns-clb-go/ttlcache",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
 			"checksumSHA1": "F/ogdi4RQkddi5V4H8uhPQpgn1w=",
 			"path": "github.com/coreos/etcd/client",
 			"revision": "c349e089b168e28629d0db6ac2819000abbaf6a7",
@@ -31,6 +61,12 @@
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "87c000235d3d852c1628dc9490cd21ab36a7d69f",
 			"revisionTime": "2016-09-26T18:56:24Z"
+		},
+		{
+			"checksumSHA1": "NdGJLV/0zqzSJZ9Vs2S+0dmlEzM=",
+			"path": "github.com/miekg/dns",
+			"revision": "fc4e1e2843d86c346d7203160cfdbf14fa654a9b",
+			"revisionTime": "2016-10-06T10:00:29Z"
 		},
 		{
 			"checksumSHA1": "gIrcwv233FUSVJ2jlArLB0jeLQE=",
