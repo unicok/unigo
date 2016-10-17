@@ -1,35 +1,57 @@
 package services
 
 import (
+	"fmt"
+	"os"
 	"strings"
 	"sync"
-	"sync/atomic"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/benschw/dns-clb-go/clb"
 	"google.golang.org/grpc"
 )
 
 const (
-	DefaultDnsDomain = ".service.consul"
+	EnvConsulHost     = "CONSUL_HOST"
+	EnvConsulDNSPort  = "CONSUL_DNS_PORT"
+	DefaultConsulHost = "127.0.0.1"
+	DefaultDNSPort    = "53"
+	DefaultDnsDomain  = "service.consul"
 )
 
-// client is a single connection
-type client struct {
-	key  string
-	conn *grpc.ClientConn
+var (
+	consulHost    string
+	consulDNSPort string
+	consulAPIPort string
+
+	lbclient clb.LoadBalancer
+)
+
+func init() {
+	consulHost = DefaultConsulHost
+	if env := os.Getenv(EnvConsulHost); env != "" {
+		consulHost = env
+	}
+
+	consulDNSPort = DefaultDNSPort
+	if env := os.Getenv(EnvConsulDNSPort); env != "" {
+		consulDNSPort = env
+	}
+
+	lbclient = clb.NewClb(consulHost, consulDNSPort, clb.RoundRobin)
+	log.Infof("dns server: %s:%s", consulHost, consulDNSPort)
 }
 
 type service struct {
-	clients []client
-	idx     uint32
+	clients map[string]*grpc.ClientConn
 }
 
 // all services
 type servicePool struct {
+	sync.RWMutex
 	services        map[string]*service
 	knownNames      map[string]bool // store names.txt
 	enableNameCheck bool
-	sync.RWMutex
 }
 
 var (
@@ -61,9 +83,6 @@ func (p *servicePool) init(names ...string) {
 	for _, v := range names {
 		p.knownNames[strings.TrimSpace(v)] = true
 	}
-
-	// start connection
-	p.connectAll()
 }
 
 func (p *servicePool) loadNames() []string {
@@ -87,75 +106,7 @@ func (p *servicePool) loadNames() []string {
 	return nil
 }
 
-// connect to all services
-func (p *servicePool) connectAll() {
-
-	for k := range p.knownNames {
-		p.addServices(k)
-	}
-	log.Info("services add completed")
-
-	go p.watcher()
-}
-
-func (p *servicePool) watcher() {
-	// kapi := etcdclient.NewKeysAPI(p.client)
-	// w := kapi.Watcher(DefaultServicePath, &etcdclient.WatcherOptions{Recursive: true})
-	// for {
-	// 	resp, err := w.Next(context.Background())
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 		continue
-	// 	}
-	// 	if resp.Node.Dir {
-	// 		continue
-	// 	}
-
-	// 	switch resp.Action {
-	// 	case "set", "create", "update", "compareAndSwap":
-	// 		p.addService(resp.Node.Key, resp.Node.Value)
-	// 	case "delete":
-	// 		p.removeService(resp.PrevNode.Key)
-	// 	}
-	// }
-}
-
-func (p *servicePool) addServices(serviceName string) {
-	// name check
-	if p.enableNameCheck && !p.knownNames[serviceName] {
-		return
-	}
-
-	addrs, err := LookupHP(serviceName + DefaultDnsDomain)
-	if err != nil {
-		log.Errorf("failed to resolve service host: %v, %v", serviceName, err)
-		return
-	}
-
-	// try new service kind init
-	if p.services[serviceName] == nil {
-		p.services[serviceName] = &service{}
-	}
-
-	service := p.services[serviceName]
-	for _, addr := range addrs {
-		exists := false
-		for _, c := range service.clients {
-			if c.key == addr {
-				exists = true
-			}
-		}
-
-		if !exists {
-			p.addService(serviceName, addr)
-		}
-	}
-}
-
 func (p *servicePool) addService(serviceName, addr string) {
-	p.Lock()
-	defer p.Unlock()
-
 	// name check
 	if p.enableNameCheck && !p.knownNames[serviceName] {
 		return
@@ -169,7 +120,7 @@ func (p *servicePool) addService(serviceName, addr string) {
 	// create service connection
 	service := p.services[serviceName]
 	if conn, err := grpc.Dial(addr, grpc.WithBlock(), grpc.WithInsecure()); err == nil {
-		service.clients = append(service.clients, client{addr, conn})
+		service.clients[addr] = conn
 		log.Info("service added:", serviceName, "-->", addr)
 	} else {
 		log.Error("did not connect:", serviceName, "-->", addr, " error:", err)
@@ -177,9 +128,6 @@ func (p *servicePool) addService(serviceName, addr string) {
 }
 
 func (p *servicePool) removeService(serviceName, addr string) {
-	p.Lock()
-	defer p.Unlock()
-
 	// name check
 	if p.enableNameCheck && !p.knownNames[serviceName] {
 		return
@@ -194,8 +142,8 @@ func (p *servicePool) removeService(serviceName, addr string) {
 
 	// remove a service
 	for k := range service.clients {
-		if service.clients[k].key == addr {
-			service.clients = append(service.clients[:k], service.clients[k+1:]...)
+		if k == addr {
+			delete(service.clients, addr)
 			log.Infof("service removed:%s addr:%s", serviceName, addr)
 			return
 		}
@@ -230,19 +178,30 @@ func (p *servicePool) getService(serviceName string) (conn *grpc.ClientConn, key
 	p.RLock()
 	defer p.RUnlock()
 
-	// check existence
+	// try new service kind init
+	if p.services[serviceName] == nil {
+		p.services[serviceName] = &service{}
+	}
+
 	service := p.services[serviceName]
-	if service == nil {
+	addr, err := GetServiceAddress(serviceName)
+	if err != nil {
+		log.Error(err)
 		return nil, ""
 	}
 
-	if len(service.clients) == 0 {
-		return nil, ""
+	conn = service.clients[addr]
+	if conn != nil {
+		return conn, addr
 	}
 
-	// get a service in round-robin sytle
-	idx := int(atomic.AddUint32(&service.idx, 1)) % len(service.clients)
-	return service.clients[idx].conn, service.clients[idx].key
+	if addr != "" {
+		p.addService(serviceName, addr)
+		// get a service in round-robin sytle
+		return service.clients[addr], addr
+	}
+
+	return nil, addr
 }
 
 // GetService is getting a service in round-robin style
@@ -252,6 +211,10 @@ func GetService(srvName string) (*grpc.ClientConn, string) {
 	return conn, key
 }
 
-func SearchService(srvName string) ([]string, error) {
-	return LookupHP(srvName + DefaultDnsDomain)
+func GetServiceAddress(srvName string) (string, error) {
+	addr, err := lbclient.GetAddress(fmt.Sprintf("%s.%s", srvName, DefaultDnsDomain))
+	if err != nil {
+		return "", err
+	}
+	return addr.String(), nil
 }
