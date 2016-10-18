@@ -2,4 +2,4 @@
 docker rm -f auth
 docker rmi auth
 docker build --no-cache --rm=true -t auth .
-docker run --rm=true --name auth --network unigo_default -it -p 50006:50006 --dns 172.18.0.1 --dns-search service.consul -e CONSUL_HOST=172.18.0.1 -e SERVICE_NAME=auth -e SERVICE_ID=auth1 auth
+docker run --rm=true --name auth --hostname auth -it -p 50006:50006 --dns 172.17.0.1 --dns-search service.consul -e SERVICE_NAME=auth auth

@@ -57,12 +57,13 @@ func (s *server) init() {
 		mongodbURL = env
 	}
 	if mongodbURL == "" {
-		addr, err := services.GetServiceAddress("mongo.service.consul")
+		addr, err := services.GetServiceAddress("mongo")
 		if err != nil {
 			log.Panic("failed to resolve mongo host, ", err)
 			os.Exit(-1)
 		}
 
+		log.Info("resolve mongo addr: ", addr)
 		mongodbURL = addr
 	}
 

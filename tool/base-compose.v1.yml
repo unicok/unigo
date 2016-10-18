@@ -1,13 +1,13 @@
 consul:
-    image: progrium/consul:latest
-    command: -server -bootstrap -ui-dir /ui
+    image: consul:latest
+    # command: agent -dev
     hostname: consul
     # network_mode : host
     privileged: false
     restart: always
     ports:
     - 8500:8500
-    - 53:53/udp
+    - 8600:8600/udp
     environment:
     - SERVICE_8300_IGNORE=yes
     - SERVICE_8301_IGNORE=yes

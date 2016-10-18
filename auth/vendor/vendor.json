@@ -14,6 +14,36 @@
 			"revisionTime": "2016-08-29T20:23:21Z"
 		},
 		{
+			"checksumSHA1": "iBtPGjn2UGtbqxTh2z+IDwMRe/0=",
+			"path": "github.com/benschw/dns-clb-go/clb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "6sDi+mv72REy02sTq/dkYE5hzrE=",
+			"path": "github.com/benschw/dns-clb-go/dns",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "A/qSpPqPTaEM7ZId2W2cV9g47ws=",
+			"path": "github.com/benschw/dns-clb-go/randomclb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "60cUhlrOUNGKKHUgTZ3HbTvtLQ0=",
+			"path": "github.com/benschw/dns-clb-go/roundrobinclb",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
+			"checksumSHA1": "ZvE/jJWDofy25NRiN3vur47icMo=",
+			"path": "github.com/benschw/dns-clb-go/ttlcache",
+			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
+			"revisionTime": "2015-10-27T18:25:44Z"
+		},
+		{
 			"checksumSHA1": "7L6uBG7lWAyD76IejiKVB4P3GVY=",
 			"path": "github.com/coreos/etcd/client",
 			"revision": "dac6e700f8850de8d3c42e6f74f71b8f75616776",
@@ -250,7 +280,7 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "TM2tJqBNvMbaN6HUw0shzQzHpHw=",
+			"checksumSHA1": "ifSo1EROwwORHds/0yX8gclS8xw=",
 			"path": "lib/services",
 			"revision": ""
 		},
