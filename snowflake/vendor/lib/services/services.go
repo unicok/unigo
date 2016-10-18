@@ -14,7 +14,7 @@ import (
 const (
 	EnvConsulHost     = "CONSUL_HOST"
 	EnvConsulDNSPort  = "CONSUL_DNS_PORT"
-	DefaultConsulHost = "127.0.0.1"
+	DefaultConsulHost = "172.17.0.1"
 	DefaultDNSPort    = "53"
 	DefaultDnsDomain  = "service.consul"
 )
