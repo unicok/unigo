@@ -1,0 +1,19 @@
+mongodb:
+    image: mongo:latest
+    hostname: mongo
+    privileged: false
+    restart: always
+    ports: 
+    - 27017
+    volumes:
+    - ./volumes/db/mongo:/data/db
+
+mongo-express:
+    image: mongo-express:latest
+    hostname: mongo-express
+    privileged: false
+    restart: always
+    links:
+    - mongodb:mongo
+    ports:
+    - 8081:8081

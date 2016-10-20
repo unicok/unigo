@@ -1,0 +1,17 @@
+kamon-grafana-dashboard:
+    image: kamon/grafana_graphite:latest
+    hostname: kamon-grafana-dashboard
+    privileged: false
+    restart: always
+    dns:
+    - 172.17.0.1
+    ports:
+    - 8082:80
+    - 8125:8125/udp
+    - 8126:8126
+    - 8083:81
+    environment:
+    - SERVICE_8126_IGNORE=yes
+    - SERVICE_81_IGNORE=yes
+    - SERVICE_80_NAME=grafana-dashboard
+    - SERVICE_8125_NAME=statd
