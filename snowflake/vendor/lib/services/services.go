@@ -16,7 +16,7 @@ const (
 	EnvConsulHost     = "CONSUL_HOST"
 	EnvConsulDNSPort  = "CONSUL_DNS_PORT"
 	DefaultConsulHost = "172.17.0.1"
-	DefaultDNSPort    = "53"
+	DefaultDNSPort    = "8600"
 	DefaultDnsDomain  = "service.consul"
 )
 
