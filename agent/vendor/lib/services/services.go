@@ -7,8 +7,9 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/benschw/dns-clb-go/clb"
 	"google.golang.org/grpc"
+
+	"lib/clb"
 )
 
 const (

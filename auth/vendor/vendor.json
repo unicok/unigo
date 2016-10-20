@@ -14,54 +14,6 @@
 			"revisionTime": "2016-08-29T20:23:21Z"
 		},
 		{
-			"checksumSHA1": "iBtPGjn2UGtbqxTh2z+IDwMRe/0=",
-			"path": "github.com/benschw/dns-clb-go/clb",
-			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
-			"revisionTime": "2015-10-27T18:25:44Z"
-		},
-		{
-			"checksumSHA1": "6sDi+mv72REy02sTq/dkYE5hzrE=",
-			"path": "github.com/benschw/dns-clb-go/dns",
-			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
-			"revisionTime": "2015-10-27T18:25:44Z"
-		},
-		{
-			"checksumSHA1": "A/qSpPqPTaEM7ZId2W2cV9g47ws=",
-			"path": "github.com/benschw/dns-clb-go/randomclb",
-			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
-			"revisionTime": "2015-10-27T18:25:44Z"
-		},
-		{
-			"checksumSHA1": "60cUhlrOUNGKKHUgTZ3HbTvtLQ0=",
-			"path": "github.com/benschw/dns-clb-go/roundrobinclb",
-			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
-			"revisionTime": "2015-10-27T18:25:44Z"
-		},
-		{
-			"checksumSHA1": "ZvE/jJWDofy25NRiN3vur47icMo=",
-			"path": "github.com/benschw/dns-clb-go/ttlcache",
-			"revision": "d27e15d9d464003443a1849927183b42ffdf588d",
-			"revisionTime": "2015-10-27T18:25:44Z"
-		},
-		{
-			"checksumSHA1": "7L6uBG7lWAyD76IejiKVB4P3GVY=",
-			"path": "github.com/coreos/etcd/client",
-			"revision": "dac6e700f8850de8d3c42e6f74f71b8f75616776",
-			"revisionTime": "2016-09-29T17:07:47Z"
-		},
-		{
-			"checksumSHA1": "mKIXx1kDwmVmdIpZ3pJtRBuUKso=",
-			"path": "github.com/coreos/etcd/pkg/pathutil",
-			"revision": "dac6e700f8850de8d3c42e6f74f71b8f75616776",
-			"revisionTime": "2016-09-29T17:07:47Z"
-		},
-		{
-			"checksumSHA1": "gx1gJIMU6T0UNQ0bPZ/drQ8cpCI=",
-			"path": "github.com/coreos/etcd/pkg/types",
-			"revision": "dac6e700f8850de8d3c42e6f74f71b8f75616776",
-			"revisionTime": "2016-09-29T17:07:47Z"
-		},
-		{
 			"checksumSHA1": "Lf3uUXTkKK5DJ37BxQvxO1Fq+K8=",
 			"path": "github.com/davecgh/go-spew/spew",
 			"revision": "6d212800a42e8ab5c146b8ace3490ee17e5225f9",
@@ -90,12 +42,6 @@
 			"path": "github.com/prometheus/common/log",
 			"revision": "e35a2e33a50a7d756c7afdfaf609f93905a0c111",
 			"revisionTime": "2016-09-28T12:38:18Z"
-		},
-		{
-			"checksumSHA1": "jfIUoeCY4uLz1zCgnCxndi5/UNE=",
-			"path": "github.com/ugorji/go/codec",
-			"revision": "faddd6128c66c4708f45fdc007f575f75e592a3c",
-			"revisionTime": "2016-09-28T01:52:44Z"
 		},
 		{
 			"checksumSHA1": "9jjO5GjLa0XF/nfWihF02RoH4qc=",
@@ -260,6 +206,11 @@
 			"revisionTime": "2016-08-19T09:55:48Z"
 		},
 		{
+			"checksumSHA1": "b8J7SAEbSa3YiPe936YhY2LYAWk=",
+			"path": "lib/clb",
+			"revision": ""
+		},
+		{
 			"checksumSHA1": "JSrsySUnAtwfZ1iEg9bzaObYCw8=",
 			"path": "lib/db/mongodb",
 			"revision": ""
@@ -280,7 +231,7 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "ifSo1EROwwORHds/0yX8gclS8xw=",
+			"checksumSHA1": "BgAQQ/Et/5Hajf91gCtPv0RVgkw=",
 			"path": "lib/services",
 			"revision": ""
 		},

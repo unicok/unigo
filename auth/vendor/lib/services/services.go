@@ -7,15 +7,16 @@ import (
 	"sync"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/benschw/dns-clb-go/clb"
 	"google.golang.org/grpc"
+
+	"lib/clb"
 )
 
 const (
 	EnvConsulHost     = "CONSUL_HOST"
 	EnvConsulDNSPort  = "CONSUL_DNS_PORT"
 	DefaultConsulHost = "172.17.0.1"
-	DefaultDNSPort    = "8600"
+	DefaultDNSPort    = "53"
 	DefaultDnsDomain  = "service.consul"
 )
 
